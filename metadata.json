@@ -1,0 +1,6 @@
+{
+  "name": "MediLink Lumen Presentation",
+  "description": "Cinematic, scroll-driven Apple-style product presentation for MediLink and its AI system Lumen.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
