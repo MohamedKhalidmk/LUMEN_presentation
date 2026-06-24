@@ -1,385 +1,426 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  User, Stethoscope, Building2, Pill, Activity, Sliders, Check, Star, ArrowRight, ShieldCheck, MapPin
+import { motion } from 'motion/react';
+import {
+  User,
+  Stethoscope,
+  Building2,
+  Pill,
+  Activity,
+  Sliders,
+  Star,
+  ShieldCheck,
+  MapPin,
+  CheckCircle2,
 } from 'lucide-react';
 
+type NodeId = 'patient' | 'doctor' | 'hospital' | 'pharmacy';
+type SymptomId = 'rash' | 'cough' | 'fever';
+type LocationId = 'cairo' | 'alex' | 'giza';
+
+const nodes = [
+  {
+    id: 'patient' as const,
+    icon: User,
+    title: 'Patient',
+    description: 'Starts the journey with symptoms, questions, records, or uploaded files.',
+    detail: 'MediLink keeps the patient request attached to context instead of leaving it as a disconnected message.',
+    position: 'left-[5%] top-1/2 -translate-y-1/2',
+    line: { x1: 18, y1: 50, x2: 50, y2: 50 },
+  },
+  {
+    id: 'doctor' as const,
+    icon: Stethoscope,
+    title: 'Doctor',
+    description: 'Receives a clearer pre-visit picture before the consultation begins.',
+    detail: 'Symptoms, bookings, and records can become a structured handoff instead of repeated patient explanations.',
+    position: 'left-1/2 top-[5%] -translate-x-1/2',
+    line: { x1: 50, y1: 18, x2: 50, y2: 50 },
+  },
+  {
+    id: 'hospital' as const,
+    icon: Building2,
+    title: 'Hospital',
+    description: 'Coordinates appointments, departments, reports, and follow-up steps.',
+    detail: 'The hospital becomes part of the same care loop instead of a separate offline step.',
+    position: 'left-1/2 bottom-[5%] -translate-x-1/2',
+    line: { x1: 50, y1: 82, x2: 50, y2: 50 },
+  },
+  {
+    id: 'pharmacy' as const,
+    icon: Pill,
+    title: 'Pharmacy',
+    description: 'Supports prescriptions, availability, and medication follow-through.',
+    detail: 'The care path continues after the visit, linking prescriptions and follow-up reminders back to the record.',
+    position: 'right-[5%] top-1/2 -translate-y-1/2',
+    line: { x1: 82, y1: 50, x2: 50, y2: 50 },
+  },
+];
+
+const doctors = [
+  { name: 'Dr. Yousry Mansour', specialty: 'Dermatologist', rating: 4.9, location: 'cairo', symptoms: ['rash'], baseScore: 72 },
+  { name: 'Dr. Mona El-Shazly', specialty: 'Dermatologist', rating: 4.7, location: 'alex', symptoms: ['rash'], baseScore: 70 },
+  { name: 'Dr. Kareem Hegazi', specialty: 'General Physician', rating: 4.4, location: 'cairo', symptoms: ['cough', 'fever'], baseScore: 66 },
+  { name: 'Dr. Farida Salem', specialty: 'Pulmonologist', rating: 4.8, location: 'giza', symptoms: ['cough'], baseScore: 74 },
+  { name: 'Dr. Tarek Hegazi', specialty: 'Pediatrician', rating: 4.6, location: 'cairo', symptoms: ['fever'], baseScore: 68 },
+];
+
 export default function ConnectedCareScene() {
-  const [activeNode, setActiveNode] = useState<'patient' | 'doctor' | 'hospital' | 'pharmacy' | 'medilink'>('medilink');
-  
-  // AutoRec simulator states
-  const [selectedSymptom, setSelectedSymptom] = useState<'rash' | 'cough' | 'fever'>('rash');
-  const [selectedLocation, setSelectedLocation] = useState<'cairo' | 'alex' | 'giza'>('cairo');
-  const [hasHistory, setHasHistory] = useState<boolean>(true);
-  const [minRating, setMinRating] = useState<number>(4.5);
+  const [activeNodes, setActiveNodes] = useState<NodeId[]>([]);
+  const [selectedSymptom, setSelectedSymptom] = useState<SymptomId>('rash');
+  const [selectedLocation, setSelectedLocation] = useState<LocationId>('cairo');
+  const [hasHistory, setHasHistory] = useState(true);
+  const [availableToday, setAvailableToday] = useState(true);
 
-  const nodes = [
-    {
-      id: 'patient' as const,
-      icon: User,
-      title: 'Patient Node',
-      description: 'The point of origin. Logs symptoms, captures photos, and queries guidance.',
-      details: 'Transmits clinical intent, raw files, and geographic coordinates to the care routing matrix.',
-      position: 'top-1/2 left-4 -translate-y-1/2',
-      color: 'from-blue-500 to-sky-400',
-      glow: 'shadow-[0_0_20px_rgba(59,130,246,0.3)]'
-    },
-    {
-      id: 'doctor' as const,
-      icon: Stethoscope,
-      title: 'Physician Node',
-      description: 'Verified medical specialists and general practitioners.',
-      details: 'Receives fully structured pre-consultation digests, reducing administrative intake and maximizing face-to-face care.',
-      position: 'top-6 left-1/2 -translate-x-1/2',
-      color: 'from-purple-500 to-indigo-400',
-      glow: 'shadow-[0_0_20px_rgba(168,85,247,0.3)]'
-    },
-    {
-      id: 'hospital' as const,
-      icon: Building2,
-      title: 'Hospital Node',
-      description: 'Regional clinics, medical groups, and diagnostic labs.',
-      details: 'Synchronizes patient scheduling, referrals, and high-fidelity diagnostic imagery securely across locations.',
-      position: 'bottom-6 left-1/2 -translate-x-1/2',
-      color: 'from-emerald-500 to-teal-400',
-      glow: 'shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-    },
-    {
-      id: 'pharmacy' as const,
-      icon: Pill,
-      title: 'Pharmacy Node',
-      description: 'Local pharmacies and pharmaceutical centers.',
-      details: 'Maintains drug safety audits and coordinates automated digital prescription fulfillment based on doctor approvals.',
-      position: 'top-1/2 right-4 -translate-y-1/2',
-      color: 'from-amber-500 to-yellow-400',
-      glow: 'shadow-[0_0_20px_rgba(245,158,11,0.3)]'
-    }
-  ];
+  const toggleNode = (id: NodeId) => {
+    setActiveNodes((prev) =>
+      prev.includes(id) ? prev.filter((node) => node !== id) : [...prev, id]
+    );
+  };
 
-  // AutoRec scoring logic simulation
-  const doctors = [
-    { name: 'Dr. Yousry Mansour', specialty: 'Dermatologist', rating: 4.9, location: 'cairo', symptoms: ['rash'], baseScore: 92 },
-    { name: 'Dr. Mona El-Shazly', specialty: 'Dermatologist', rating: 4.7, location: 'alex', symptoms: ['rash'], baseScore: 88 },
-    { name: 'Dr. Kareem Hegazi', specialty: 'General Physician', rating: 4.4, location: 'cairo', symptoms: ['cough', 'fever'], baseScore: 82 },
-    { name: 'Dr. Farida Salem', specialty: 'Pulmonologist', rating: 4.8, location: 'giza', symptoms: ['cough'], baseScore: 95 },
-    { name: 'Dr. Tarek Hegazi', specialty: 'Pediatrician', rating: 4.6, location: 'cairo', symptoms: ['fever'], baseScore: 85 }
-  ];
-
-  const calculateScore = (doc: typeof doctors[0]) => {
+  const calculateScore = (doc: (typeof doctors)[number]) => {
     let score = doc.baseScore;
-    
-    // Symptom match bonus
-    if (doc.symptoms.includes(selectedSymptom)) {
-      score += 15;
-    } else {
-      score -= 30;
-    }
-    
-    // Location match
-    if (doc.location === selectedLocation) {
-      score += 10;
-    } else {
-      score -= 15;
-    }
-    
-    // User history match
-    if (hasHistory && doc.name.includes('Yousry')) {
-      score += 12; // simulated historical physician preference
-    }
-    
-    // Rating filter adjustment
-    if (doc.rating < minRating) {
-      score -= 25;
-    }
 
-    return Math.max(0, Math.min(100, score));
+    if (doc.symptoms.includes(selectedSymptom)) score += 18;
+    else score -= 20;
+
+    if (doc.location === selectedLocation) score += 12;
+    else score -= 8;
+
+    if (hasHistory && doc.name.includes('Yousry')) score += 12;
+    if (availableToday && ['cairo', 'giza'].includes(doc.location)) score += 8;
+    if (!availableToday && doc.location === 'alex') score += 7;
+
+    return Math.max(12, Math.min(99, score));
   };
 
   const scoredDoctors = doctors
-    .map(doc => ({ ...doc, score: calculateScore(doc) }))
-    .sort((a, b) => b.score - a.score);
+    .map((doc) => ({ ...doc, score: calculateScore(doc) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
+
+  const selectedSummary =
+    activeNodes.length === 0
+      ? 'Select nodes to build the care network.'
+      : `${activeNodes.length} care node${activeNodes.length > 1 ? 's' : ''} connected to MediLink.`;
 
   return (
-    <div className="relative min-h-screen bg-black flex flex-col justify-center py-32 px-6 md:px-12 select-none border-b border-white/5" id="connected-care-root">
-      {/* Dynamic ambient grid overlay */}
-      <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-      <div className="absolute left-[10%] bottom-1/4 w-[500px] h-[300px] bg-sky-500/[0.015] rounded-full filter blur-[130px] pointer-events-none" />
+    <section
+      className="relative min-h-screen overflow-hidden bg-[#F5F5F7] text-[#1D1D1F] flex flex-col justify-center py-28 px-6 md:px-12 border-b border-neutral-200"
+      id="connected-care-root"
+    >
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-18%] right-[-12%] h-[560px] w-[560px] rounded-full bg-blue-200/35 blur-[130px]" />
+        <div className="absolute bottom-[-22%] left-[-10%] h-[520px] w-[520px] rounded-full bg-white blur-[110px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.035)_1px,transparent_1px)] bg-[size:42px_42px] opacity-40" />
+      </div>
 
-      <div className="max-w-6xl w-full mx-auto relative z-10">
-        
-        {/* Apple slide header */}
-        <div className="text-left mb-20 max-w-3xl">
-          <span className="text-[10px] font-mono text-neutral-400 tracking-[0.25em] uppercase font-bold block mb-3">COORDINATED ECOSYSTEM</span>
-          <h2 className="text-4xl md:text-6xl font-display font-light text-[#F5F5F7] tracking-tight leading-[1.1] mb-6">
-            A connected care network. <br />
-            <span className="text-neutral-500">From symptoms to the right provider.</span>
+      <div className="relative z-10 max-w-6xl w-full mx-auto">
+        <div className="max-w-3xl mb-14">
+          <span className="text-[10px] font-mono text-[#86868B] tracking-[0.25em] uppercase font-bold block mb-3">
+            Coordinated ecosystem
+          </span>
+          <h2 className="text-4xl md:text-6xl font-display font-semibold text-[#1D1D1F] tracking-[-0.055em] leading-[1.05] mb-5">
+            A connected care network.
+            <br />
+            <span className="text-[#86868B] font-light">From symptoms to the right provider.</span>
           </h2>
-          <p className="text-neutral-400 text-sm md:text-base font-light leading-relaxed font-sans">
-            Patients, doctors, hospitals, and pharmacies should not operate in separate silos. 
-            MediLink links patient needs with localized clinical nodes, then uses intelligent recommendation logic to coordinate the entire journey.
+          <p className="text-[#6E6E73] text-sm md:text-base leading-relaxed max-w-2xl">
+            MediLink connects the patient journey across doctors, clinics, hospitals, and pharmacies,
+            then uses recommendation logic to help choose the most relevant next step.
           </p>
         </div>
 
-        {/* Coordinated interactive grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          
-          {/* Left Block: Interactive Connected Care Diagram */}
-          <div className="lg:col-span-6 flex flex-col items-center justify-center order-2 lg:order-1">
-            <div className="relative w-full aspect-square max-w-[420px] bg-[#08090c] border border-white/[0.04] rounded-3xl p-8 shadow-2xl flex items-center justify-center overflow-hidden">
-              
-              {/* Dynamic lines between central MediLink node and outer nodes */}
-              <svg className="absolute inset-0 w-full h-full text-neutral-800" viewBox="0 0 100 100">
-                <defs>
-                  <linearGradient id="net-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#0071E3" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.1" />
-                  </linearGradient>
-                </defs>
-                {/* Cross connecting circuit lines */}
-                <line x1="50" y1="50" x2="15" y2="50" stroke="url(#net-glow)" strokeWidth="0.75" />
-                <line x1="50" y1="50" x2="50" y2="15" stroke="url(#net-glow)" strokeWidth="0.75" />
-                <line x1="50" y1="50" x2="50" y2="85" stroke="url(#net-glow)" strokeWidth="0.75" />
-                <line x1="50" y1="50" x2="85" y2="50" stroke="url(#net-glow)" strokeWidth="0.75" />
-
-                {/* Pulsating signals along lines */}
-                {['patient', 'doctor', 'hospital', 'pharmacy'].includes(activeNode) && (
-                  <circle r="1" className="fill-[#0071E3]">
-                    <animateMotion 
-                      dur="1.5s" 
-                      repeatCount="indefinite"
-                      path={
-                        activeNode === 'patient' ? "M 15,50 L 50,50" :
-                        activeNode === 'doctor' ? "M 50,15 L 50,50" :
-                        activeNode === 'hospital' ? "M 50,85 L 50,50" :
-                        "M 85,50 L 50,50"
-                      }
-                    />
-                  </circle>
-                )}
-              </svg>
-
-              {/* CENTER NODE: MediLink Platform */}
-              <div 
-                onClick={() => setActiveNode('medilink')}
-                className={`absolute w-24 h-24 rounded-2xl bg-neutral-900 border transition-all duration-300 flex flex-col items-center justify-center cursor-pointer z-20 ${
-                  activeNode === 'medilink' 
-                    ? 'border-[#0071E3] shadow-[0_0_25px_rgba(0,113,227,0.4)] bg-neutral-950 scale-105' 
-                    : 'border-white/10 hover:border-white/20'
-                }`}
-                id="node-medilink"
-              >
-                <div className="w-8 h-8 rounded-full bg-[#0071E3]/15 flex items-center justify-center mb-1">
-                  <Activity className="w-4 h-4 text-[#0071E3]" />
-                </div>
-                <span className="text-[9px] font-mono text-[#F5F5F7] tracking-wider uppercase font-bold">medilink</span>
-                <span className="text-[7px] font-mono text-neutral-500 uppercase font-bold">INTEGRATOR</span>
-              </div>
-
-              {/* OUTER NODES */}
-              {nodes.map((node) => {
-                const isSelected = activeNode === node.id;
-                const NodeIcon = node.icon;
-
-                return (
-                  <button
-                    key={node.id}
-                    onClick={() => setActiveNode(node.id)}
-                    className={`absolute p-4 rounded-xl border bg-neutral-950 transition-all duration-300 flex items-center justify-center cursor-pointer z-10 ${node.position} ${
-                      isSelected 
-                        ? `border-white/40 scale-110 ${node.glow}` 
-                        : 'border-white/5 hover:border-white/10 opacity-70'
-                    }`}
-                    id={`node-${node.id}`}
-                  >
-                    <div className="flex flex-col items-center">
-                      <div className={`p-2 rounded-lg bg-gradient-to-br ${node.color} bg-opacity-20 flex items-center justify-center mb-1.5`}>
-                        <NodeIcon className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-[8px] font-mono text-[#A1A1A6] font-bold uppercase tracking-wider">
-                        {node.id}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Selected Node Details Box */}
-            <div className="w-full max-w-[420px] mt-6 min-h-[100px]" id="node-details-container">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeNode}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-[#0f1013] border border-white/5 p-5 rounded-2xl text-left"
-                >
-                  {activeNode === 'medilink' ? (
-                    <div>
-                      <h4 className="text-xs font-mono font-bold text-[#0071E3] uppercase mb-1.5 tracking-wider">MediLink Hub Centralizer</h4>
-                      <p className="text-xs text-neutral-300 font-sans leading-relaxed">
-                        Acts as the orchestration layer of the care journey. Seamlessly directs data packages between patient inputs, doctor portals, clinic channels, and partner endpoints.
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase mb-1.5 tracking-wider">
-                        {nodes.find(n => n.id === activeNode)?.title}
-                      </h4>
-                      <p className="text-xs text-neutral-300 font-sans leading-relaxed mb-1.5">
-                        {nodes.find(n => n.id === activeNode)?.description}
-                      </p>
-                      <p className="text-[11px] text-neutral-500 font-sans italic">
-                        {nodes.find(n => n.id === activeNode)?.details}
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
-
-          {/* Right Block: AutoRec Scoring Engine Simulator */}
-          <div className="lg:col-span-6 space-y-6 text-left order-1 lg:order-2">
-            <div className="bg-[#08090c] border border-white/[0.05] p-6 rounded-3xl shadow-xl">
-              
-              <div className="flex items-center gap-3.5 mb-5 pb-4 border-b border-white/5">
-                <div className="p-2 rounded-lg bg-[#0071E3]/15 text-[#0071E3]">
-                  <Sliders className="w-5 h-5" />
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
+          <div className="lg:col-span-6">
+            <div className="h-full rounded-[2.2rem] bg-white/80 border border-black/10 shadow-[0_24px_70px_rgba(0,0,0,0.08)] p-6 backdrop-blur-xl">
+              <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
-                  <h3 className="font-display text-lg font-medium text-[#F5F5F7]">
-                    AutoRec Recommendation Simulator
-                  </h3>
-                  <p className="text-xs text-neutral-400 font-sans">
-                    Combines patient symptoms, geographic data, and history to score relevancy.
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#86868B] mb-1">
+                    Care graph
                   </p>
+                  <h3 className="text-2xl font-semibold tracking-[-0.04em]">Build the network</h3>
+                </div>
+                <div className="rounded-full bg-[#F5F5F7] border border-black/5 px-3 py-1.5 text-xs text-[#6E6E73]">
+                  {selectedSummary}
                 </div>
               </div>
 
-              {/* Interactive Controls */}
-              <div className="grid grid-cols-2 gap-4 mb-6" id="autorec-controls">
-                {/* Symptom selection */}
-                <div>
-                  <span className="text-[9px] font-mono text-neutral-500 font-bold uppercase tracking-wider block mb-2">Patient Symptom</span>
-                  <div className="flex flex-col gap-1.5">
-                    {[
-                      { id: 'rash', label: 'Skin Rash' },
-                      { id: 'cough', label: 'Persistent Cough' },
-                      { id: 'fever', label: 'High Fever' }
-                    ].map(sym => (
-                      <button
-                        key={sym.id}
-                        onClick={() => setSelectedSymptom(sym.id as any)}
-                        className={`px-3 py-1.5 rounded-lg text-left text-xs font-mono transition-colors border ${
-                          selectedSymptom === sym.id 
-                            ? 'bg-[#0071E3]/10 border-[#0071E3] text-[#F5F5F7]' 
-                            : 'bg-transparent border-white/5 text-neutral-400 hover:border-white/10'
-                        }`}
-                      >
-                        {sym.label}
-                      </button>
-                    ))}
+              <div className="relative aspect-square max-w-[460px] mx-auto rounded-[2rem] bg-[#FBFBFD] border border-black/5 overflow-hidden shadow-inner">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,113,227,0.11),transparent_42%)]" />
+
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="softCareLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#0071E3" stopOpacity="0.75" />
+                      <stop offset="100%" stopColor="#7AB8FF" stopOpacity="0.35" />
+                    </linearGradient>
+                  </defs>
+                  {nodes.map((node) => {
+                    const active = activeNodes.includes(node.id);
+                    return (
+                      <g key={node.id}>
+                        <line
+                          x1={node.line.x1}
+                          y1={node.line.y1}
+                          x2={node.line.x2}
+                          y2={node.line.y2}
+                          stroke={active ? 'url(#softCareLine)' : 'rgba(0,0,0,0.10)'}
+                          strokeWidth={active ? 1.2 : 0.7}
+                          strokeLinecap="round"
+                        />
+                        {active && (
+                          <circle r="1.15" fill="#0071E3">
+                            <animateMotion
+                              dur="1.7s"
+                              repeatCount="indefinite"
+                              path={`M ${node.line.x1},${node.line.y1} L ${node.line.x2},${node.line.y2}`}
+                            />
+                          </circle>
+                        )}
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                <div className="absolute left-1/2 top-1/2 z-20 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-[1.75rem] bg-[#1D1D1F] text-white shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#0071E3]/20 text-[#7AB8FF]">
+                    <Activity className="h-5 w-5" />
                   </div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-[0.16em]">MediLink</span>
+                  <span className="text-[8px] font-mono uppercase tracking-[0.12em] text-white/45">hub</span>
                 </div>
 
-                {/* Location Selection */}
-                <div>
-                  <span className="text-[9px] font-mono text-neutral-500 font-bold uppercase tracking-wider block mb-2">Location Availability</span>
-                  <div className="flex flex-col gap-1.5">
-                    {[
-                      { id: 'cairo', label: 'Cairo' },
-                      { id: 'alex', label: 'Alexandria' },
-                      { id: 'giza', label: 'Giza' }
-                    ].map(loc => (
-                      <button
-                        key={loc.id}
-                        onClick={() => setSelectedLocation(loc.id as any)}
-                        className={`px-3 py-1.5 rounded-lg text-left text-xs font-mono transition-colors border ${
-                          selectedLocation === loc.id 
-                            ? 'bg-[#0071E3]/10 border-[#0071E3] text-[#F5F5F7]' 
-                            : 'bg-transparent border-white/5 text-neutral-400 hover:border-white/10'
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 opacity-60" />
-                          {loc.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Secondary toggles */}
-              <div className="flex items-center justify-between p-3.5 bg-neutral-900/40 border border-white/5 rounded-xl mb-6">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <div>
-                    <span className="text-[10px] font-mono text-neutral-300 font-bold block">Historical Care Affinity</span>
-                    <span className="text-[8px] font-sans text-neutral-500">Prioritize doctors with previous interactions</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setHasHistory(!hasHistory)}
-                  className={`w-9 h-5 rounded-full transition-colors relative p-0.5 ${hasHistory ? 'bg-[#0071E3]' : 'bg-neutral-800'}`}
-                >
-                  <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform ${hasHistory ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-              </div>
-
-              {/* Render computed scored doctors list */}
-              <div className="space-y-2.5">
-                <span className="text-[9px] font-mono text-neutral-500 font-bold uppercase tracking-wider block mb-1">
-                  Active Ranked Scoring Results (AutoRec scoring logic)
-                </span>
-                
-                {scoredDoctors.map((doc, idx) => {
-                  const scoreColor = doc.score > 85 ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5' : doc.score > 60 ? 'text-blue-400 border-blue-500/20 bg-blue-500/5' : 'text-neutral-500 border-white/5 bg-neutral-900/20';
-
+                {nodes.map((node) => {
+                  const Icon = node.icon;
+                  const active = activeNodes.includes(node.id);
                   return (
-                    <div 
-                      key={doc.name}
-                      className={`p-3 rounded-xl border flex justify-between items-center transition-all duration-300 ${scoreColor}`}
+                    <button
+                      key={node.id}
+                      onClick={() => toggleNode(node.id)}
+                      className={`absolute ${node.position} z-30 w-24 rounded-2xl border p-3 text-center transition-all duration-300 ${
+                        active
+                          ? 'scale-105 border-[#0071E3]/40 bg-white shadow-[0_18px_40px_rgba(0,113,227,0.16)]'
+                          : 'border-black/5 bg-white/80 shadow-sm hover:-translate-y-0.5 hover:bg-white'
+                      }`}
                     >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-[#F5F5F7]">{doc.name}</span>
-                          <span className="text-[8.5px] font-mono bg-white/5 px-1.5 py-0.5 rounded text-neutral-400">{doc.specialty}</span>
-                        </div>
-                        <div className="flex items-center gap-3 mt-1 text-[10px] font-sans text-neutral-400">
-                          <span className="flex items-center gap-1">
-                            <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                            {doc.rating}
-                          </span>
-                          <span className="capitalize">{doc.location}</span>
-                        </div>
+                      <div
+                        className={`mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+                          active ? 'bg-[#EAF3FF] text-[#0071E3]' : 'bg-[#F5F5F7] text-[#6E6E73]'
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
                       </div>
-
-                      <div className="text-right">
-                        <span className="text-[9px] font-mono text-neutral-500 uppercase block font-bold">Match Score</span>
-                        <span className="text-sm font-mono font-bold">{doc.score}%</span>
-                      </div>
-                    </div>
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-[0.13em] text-[#1D1D1F]">
+                        {node.title}
+                      </span>
+                    </button>
                   );
                 })}
               </div>
 
-              {/* Small informational note */}
-              <div className="mt-5 p-3.5 border border-amber-500/15 bg-amber-500/5 rounded-2xl flex items-start gap-2.5">
-                <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 shrink-0" />
-                <p className="text-[10.5px] text-amber-400 leading-relaxed font-sans">
-                  <strong>AutoRec Mini-Card:</strong> AutoRec combines symptom features, geolocation affinity, ratings, and past clinic interactions to instantly weight and sort doctor relevance.
-                </p>
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {nodes.map((node) => {
+                  const active = activeNodes.includes(node.id);
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => toggleNode(node.id)}
+                      className={`rounded-2xl border p-4 text-left transition-all ${
+                        active ? 'border-[#0071E3]/30 bg-[#EAF3FF]' : 'border-black/5 bg-white hover:bg-[#FAFAFA]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        {active && <CheckCircle2 className="h-4 w-4 text-[#0071E3]" />}
+                        <h4 className="text-sm font-semibold tracking-[-0.02em]">{node.title}</h4>
+                      </div>
+                      <p className="text-xs leading-relaxed text-[#6E6E73]">{active ? node.detail : node.description}</p>
+                    </button>
+                  );
+                })}
               </div>
-
             </div>
           </div>
 
-        </div>
+          <div className="lg:col-span-6">
+            <div className="h-full rounded-[2.2rem] bg-white/85 border border-black/10 shadow-[0_24px_70px_rgba(0,0,0,0.08)] p-6 backdrop-blur-xl">
+              <div className="flex items-center gap-3.5 mb-6 pb-5 border-b border-black/5">
+                <div className="p-2.5 rounded-2xl bg-[#EAF3FF] text-[#0071E3]">
+                  <Sliders className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-display text-xl font-semibold tracking-[-0.035em] text-[#1D1D1F]">
+                    AutoRec recommendation simulator
+                  </h3>
+                  <p className="text-sm text-[#6E6E73]">
+                    Adjust symptoms, location, and context to see provider ranking change.
+                  </p>
+                </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5" id="autorec-controls">
+                <ControlGroup
+                  label="Patient symptom"
+                  options={[
+                    { id: 'rash', label: 'Skin rash' },
+                    { id: 'cough', label: 'Persistent cough' },
+                    { id: 'fever', label: 'High fever' },
+                  ]}
+                  value={selectedSymptom}
+                  onChange={(value) => setSelectedSymptom(value as SymptomId)}
+                />
+
+                <ControlGroup
+                  label="Location"
+                  options={[
+                    { id: 'cairo', label: 'Cairo' },
+                    { id: 'alex', label: 'Alexandria' },
+                    { id: 'giza', label: 'Giza' },
+                  ]}
+                  value={selectedLocation}
+                  onChange={(value) => setSelectedLocation(value as LocationId)}
+                  withIcon
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <ToggleCard
+                  title="Care affinity"
+                  subtitle="Prefer doctors with prior context"
+                  active={hasHistory}
+                  onClick={() => setHasHistory((value) => !value)}
+                />
+                <ToggleCard
+                  title="Available today"
+                  subtitle="Weight doctors with near-term slots"
+                  active={availableToday}
+                  onClick={() => setAvailableToday((value) => !value)}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-mono text-[#86868B] font-bold uppercase tracking-[0.2em]">
+                    Ranked recommendations
+                  </span>
+                  <span className="text-xs text-[#86868B]">Live scoring</span>
+                </div>
+
+                {scoredDoctors.map((doc, idx) => {
+                  const strong = doc.score >= 86;
+                  return (
+                    <motion.div
+                      key={doc.name}
+                      layout
+                      transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+                      className={`rounded-2xl border p-4 transition-colors ${
+                        strong ? 'border-emerald-500/20 bg-emerald-50' : 'border-black/5 bg-[#FBFBFD]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1D1D1F] text-white text-[11px] font-mono">
+                              {idx + 1}
+                            </span>
+                            <h4 className="text-sm font-semibold tracking-[-0.015em]">{doc.name}</h4>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[#6E6E73]">
+                            <span>{doc.specialty}</span>
+                            <span className="flex items-center gap-1">
+                              <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                              {doc.rating}
+                            </span>
+                            <span className="capitalize">{doc.location}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="block text-[9px] font-mono uppercase text-[#86868B] font-bold">Match</span>
+                          <span className={`text-lg font-mono font-bold ${strong ? 'text-emerald-600' : 'text-[#0071E3]'}`}>
+                            {doc.score}%
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-amber-500/15 bg-amber-50 px-4 py-3 text-[11px] leading-relaxed text-amber-700">
+                <strong>AutoRec:</strong> symptom features, location, availability, rating, and care history are combined into a relevance score, then ranked for the patient.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ControlGroup({
+  label,
+  options,
+  value,
+  onChange,
+  withIcon = false,
+}: {
+  label: string;
+  options: { id: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  withIcon?: boolean;
+}) {
+  return (
+    <div>
+      <span className="text-[10px] font-mono text-[#86868B] font-bold uppercase tracking-[0.18em] block mb-2">
+        {label}
+      </span>
+      <div className="flex flex-col gap-2">
+        {options.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => onChange(option.id)}
+            className={`rounded-xl border px-3 py-2 text-left text-xs transition-colors ${
+              value === option.id
+                ? 'border-[#0071E3]/40 bg-[#EAF3FF] text-[#1D1D1F]'
+                : 'border-black/5 bg-[#FBFBFD] text-[#6E6E73] hover:bg-white'
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              {withIcon && <MapPin className="w-3.5 h-3.5 opacity-60" />}
+              {option.label}
+            </span>
+          </button>
+        ))}
       </div>
     </div>
+  );
+}
+
+function ToggleCard({
+  title,
+  subtitle,
+  active,
+  onClick,
+}: {
+  title: string;
+  subtitle: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-2xl border p-4 text-left transition-all ${
+        active ? 'border-[#0071E3]/30 bg-[#EAF3FF]' : 'border-black/5 bg-[#FBFBFD] hover:bg-white'
+      }`}
+    >
+      <div className="flex items-center justify-between gap-4 mb-1">
+        <span className="text-sm font-semibold tracking-[-0.02em]">{title}</span>
+        <span className={`relative h-5 w-9 rounded-full transition-colors ${active ? 'bg-[#0071E3]' : 'bg-[#D1D1D6]'}`}>
+          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${active ? 'translate-x-4' : 'translate-x-0.5'}`} />
+        </span>
+      </div>
+      <p className="text-xs text-[#6E6E73] leading-relaxed">{subtitle}</p>
+    </button>
   );
 }
