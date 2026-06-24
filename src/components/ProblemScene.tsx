@@ -1,170 +1,538 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { AlertCircle, ArrowUpRight, TrendingUp, Users, ShieldAlert, Layers } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  User, Stethoscope, Building2, Pill, Activity, 
+  Sliders, Star, MapPin, ShieldCheck, Clock, ArrowRight, Info
+} from 'lucide-react';
+
+type NodeId = 'patient' | 'doctor' | 'hospital' | 'pharmacy' | 'medilink';
 
 export default function ProblemScene() {
-  const fragments = [
-    { 
-      title: 'Symptom Inquiries', 
-      desc: 'Conversational symptoms captured in standard disjointed chat bubbles with zero professional medical grounding references.',
-      color: 'border-l-4 border-amber-500'
+  // Connected care nodes state - start with beautiful connected set
+  const [activeNode, setActiveNode] = useState<NodeId>('medilink');
+  const [connectedNodes, setConnectedNodes] = useState<NodeId[]>(['medilink']);
+  
+  // AutoRec simulator states
+  const [selectedSymptom, setSelectedSymptom] = useState<'rash' | 'cough' | 'backpain'>('backpain');
+  const [selectedLocation, setSelectedLocation] = useState<'cairo' | 'alex'>('cairo');
+  const [hasHistory, setHasHistory] = useState<boolean>(true);
+  const [onlyAvailableNow, setOnlyAvailableNow] = useState<boolean>(false);
+
+  const nodes = [
+    {
+      id: 'patient' as const,
+      icon: User,
+      title: 'Patient Node',
+      description: 'The care point of origin.',
+      details: 'Patient registers initial symptoms, logs physical indicators, and queries local clinician routes.',
+      color: 'from-blue-500 to-sky-400',
+      textColor: 'text-blue-400',
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/20'
     },
-    { 
-      title: 'Dermoscopic Scans', 
-      desc: 'Raw consumer skin photography stored unconnected to laboratory cases or medical files.',
-      color: 'border-l-4 border-sky-500'
+    {
+      id: 'doctor' as const,
+      icon: Stethoscope,
+      title: 'Physician Node',
+      description: 'Verified clinical specialist.',
+      details: 'Physicians receive structured patient summaries before consulting, eliminating intake admin.',
+      color: 'from-purple-500 to-indigo-400',
+      textColor: 'text-purple-400',
+      bgColor: 'bg-purple-500/10',
+      borderColor: 'border-purple-500/20'
     },
-    { 
-      title: 'Academic Evidence', 
-      desc: 'Millions of peer-reviewed clinical research files untouched by typical consumer triage apps or search portals.',
-      color: 'border-l-4 border-emerald-500'
+    {
+      id: 'hospital' as const,
+      icon: Building2,
+      title: 'Hospital Node',
+      description: 'Clinic and diagnostics portal.',
+      details: 'Hospitals synchronize scheduling slots, medical records, and physician availability indexes.',
+      color: 'from-emerald-500 to-teal-400',
+      textColor: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/20'
     },
-    { 
-      title: 'Specialist Triage', 
-      desc: 'Disjointed directories force patients to locate and schedule appointments without clear pre-evaluated diagnostic records.',
-      color: 'border-l-4 border-purple-500'
+    {
+      id: 'pharmacy' as const,
+      icon: Pill,
+      title: 'Pharmacy Node',
+      description: 'Fulfillment network.',
+      details: 'Fulfills digitally signed e-prescriptions instantly and records checkout states.',
+      color: 'from-amber-500 to-yellow-400',
+      textColor: 'text-amber-400',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/20'
     }
   ];
 
+  const handleNodeClick = (id: NodeId) => {
+    setActiveNode(id);
+    if (id === 'medilink') return;
+    setConnectedNodes(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(n => n !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  // AutoRec scoring logic simulation
+  const doctors = [
+    { name: 'Dr. Yousry Mansour', specialty: 'Orthopedist', rating: 4.9, location: 'cairo', symptoms: ['backpain'], baseScore: 84, availableToday: true, hasHistoryWithUser: true },
+    { name: 'Dr. Farida Salem', specialty: 'Pulmonologist', rating: 4.8, location: 'alex', symptoms: ['cough'], baseScore: 85, availableToday: false, hasHistoryWithUser: false },
+    { name: 'Dr. Kareem Hegazi', specialty: 'General Physician', rating: 4.5, location: 'cairo', symptoms: ['cough', 'backpain'], baseScore: 78, availableToday: true, hasHistoryWithUser: true },
+    { name: 'Dr. Mona El-Shazly', specialty: 'Dermatologist', rating: 4.7, location: 'alex', symptoms: ['rash'], baseScore: 80, availableToday: true, hasHistoryWithUser: false },
+    { name: 'Dr. Tarek Hegazi', specialty: 'Orthopedist', rating: 4.6, location: 'cairo', symptoms: ['backpain'], baseScore: 81, availableToday: false, hasHistoryWithUser: false }
+  ];
+
+  const calculateScore = (doc: typeof doctors[0]) => {
+    let score = doc.baseScore;
+    
+    // Symptom match bonus
+    if (doc.symptoms.includes(selectedSymptom)) {
+      score += 15;
+    } else {
+      score -= 20;
+    }
+    
+    // Location match bonus
+    if (doc.location === selectedLocation) {
+      score += 10;
+    } else {
+      score -= 15;
+    }
+    
+    // User history affinity modifier (gives dramatic +25 shift when enabled)
+    if (hasHistory) {
+      if (doc.hasHistoryWithUser) {
+        score += 25;
+      } else {
+        score -= 5;
+      }
+    }
+    
+    // Availability modifier (heavy penalty to push unavailable down)
+    if (onlyAvailableNow) {
+      if (doc.availableToday) {
+        score += 15;
+      } else {
+        score -= 40;
+      }
+    }
+
+    return Math.max(0, Math.min(100, score));
+  };
+
+  const scoredDoctors = doctors
+    .map(doc => ({ ...doc, score: calculateScore(doc) }))
+    .sort((a, b) => b.score - a.score);
+
+  const scrollToNextSection = () => {
+    const el = document.getElementById('autorec-detail-root');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <div className="relative min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col justify-center items-center py-28 px-6 md:px-12 select-none overflow-hidden border-b border-neutral-200">
-      {/* Delicate, warm top spotlight mimicking physical Apple presentation stages */}
-      <div className="absolute top-0 w-full h-[500px] bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
-      <div className="absolute top-[20%] left-[-10%] w-[600px] h-[600px] bg-blue-100/30 rounded-full filter blur-[140px] pointer-events-none" />
+    <div className="relative min-h-screen bg-[#141517] text-[#F5F5F7] flex flex-col justify-center py-28 px-6 md:px-12 select-none overflow-hidden border-b border-white/5" id="connected-care-root">
+      
+      {/* Subtle organic ambient highlights */}
+      <div className="absolute top-[25%] right-[15%] w-[450px] h-[350px] bg-blue-500/[0.04] rounded-full filter blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[10%] left-[5%] w-[350px] h-[350px] bg-purple-500/[0.03] rounded-full filter blur-[110px] pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.015] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
-      <div className="max-w-5xl w-full z-10 flex flex-col justify-center text-left relative">
-        <motion.span 
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-[11px] font-mono text-[#86868B] tracking-[0.25em] uppercase font-bold mb-4 block"
-        >
-          THE CHALLENGE IN DIGITIZATION
-        </motion.span>
+      <div className="max-w-6xl w-full mx-auto relative z-10">
         
-        <motion.h2 
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-4xl md:text-6xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.1] mb-12 max-w-4xl"
-        >
-          Egyptian healthcare is digital. <br />
-          <span className="text-[#86868B] font-normal">But care is still fragmented.</span>
-        </motion.h2>
+        {/* Header content block */}
+        <div className="text-left mb-16 max-w-3xl">
+          <span className="text-[10px] font-mono text-neutral-500 tracking-[0.25em] uppercase font-bold block mb-3">
+            CONNECTED CARE SYSTEM
+          </span>
+          <h2 className="text-4xl md:text-6xl font-display font-light text-[#F5F5F7] tracking-tight leading-[1.1] mb-6">
+            A connected care network. <br />
+            <span className="text-neutral-500 font-light">From symptoms to the right provider.</span>
+          </h2>
+          <p className="text-neutral-400 text-sm md:text-base font-light leading-relaxed font-sans">
+            Patients, doctors, hospitals, and pharmacies should not operate in separate silos. 
+            MediLink links patient needs with localized clinical nodes, using our intelligent AutoRec recommendation logic to coordinate the entire journey in real time.
+          </p>
+        </div>
 
-        {/* Spacious Factual Narrative */}
-        <motion.p 
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="text-[#424245] text-base md:text-lg font-light leading-relaxed mb-16 max-w-3xl font-sans"
-        >
-          Clinical infrastructure in the MENA region is increasingly digital, yet the actual care loop remains profoundly disconnected. High-resolution diagnostic imagery, colloquial patient symptoms, verified clinical trials, and booking portals exist as isolated islands. MediLink unifies these steps into a singular patient flow.
-        </motion.p>
-
-        {/* Large visual statistic comparisons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        {/* Coordinated interactive grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className="bg-white border border-[#D2D2D7]/40 rounded-3xl p-8 md:p-12 flex flex-col justify-between min-h-[260px] shadow-sm transition-all"
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-mono text-[#86868B] tracking-widest uppercase font-bold">DIGITAL ORCHESTRATION</span>
-              <div className="bg-[#0071E3]/10 text-[#0071E3] p-1.5 rounded-full">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-            </div>
+          {/* Left Block: Interactive Connected Care Network Diagram */}
+          <div className="lg:col-span-6 flex flex-col items-center justify-center">
             
-            <div className="mt-8">
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-6xl md:text-7xl font-extralight tracking-tighter text-[#1D1D1F]">6.67%</span>
-                <span className="text-[#0071E3] font-mono text-sm font-bold">on-time care</span>
-              </div>
+            <div className="relative w-full aspect-square max-w-[390px] bg-[#1E2024] border border-white/[0.06] rounded-3xl p-6 shadow-2xl flex items-center justify-center overflow-hidden">
               
-              {/* Apple style progress slider */}
-              <div className="w-full bg-[#F5F5F7] h-2 rounded-full overflow-hidden mt-6 relative">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '6.67%' }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
-                  className="bg-[#0071E3] h-full rounded-full"
-                />
-              </div>
+              {/* Premium, clean vector-thin connection lines */}
+              <svg className="absolute inset-0 w-full h-full text-neutral-800" viewBox="0 0 100 100">
+                {/* Horizontal & vertical layout connector paths to center hub */}
+                
+                {/* Pharmacy Connector Path */}
+                <line x1="50" y1="50" x2="50" y2="18" stroke="#ffffff" strokeOpacity="0.08" strokeWidth="0.5" />
+                <line x1="50" y1="50" x2="50" y2="18" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('pharmacy') ? '0.7' : '0'} strokeWidth="1" className="transition-all duration-500" />
+                <line x1="50" y1="50" x2="50" y2="18" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('pharmacy') ? '0.18' : '0'} strokeWidth="3" className="transition-all duration-500 blur-[1px]" />
 
-              <p className="text-xs text-[#86868B] mt-5 font-sans leading-relaxed">
-                The current digital orchestration rate for physical referrals. Rich diagnostics are generated on patient phones daily, but are rarely connected smoothly to the specialist at consultation time.
-              </p>
-            </div>
-          </motion.div>
+                {/* Hospital Connector Path */}
+                <line x1="50" y1="50" x2="50" y2="82" stroke="#ffffff" strokeOpacity="0.08" strokeWidth="0.5" />
+                <line x1="50" y1="50" x2="50" y2="82" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('hospital') ? '0.7' : '0'} strokeWidth="1" className="transition-all duration-500" />
+                <line x1="50" y1="50" x2="50" y2="82" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('hospital') ? '0.18' : '0'} strokeWidth="3" className="transition-all duration-500 blur-[1px]" />
 
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className="bg-white border border-[#D2D2D7]/40 rounded-3xl p-8 md:p-12 flex flex-col justify-between min-h-[260px] shadow-sm transition-all"
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-mono text-[#86868B] tracking-widest uppercase font-bold">REGIONAL BOTTLENECK</span>
-              <div className="bg-red-500/10 text-red-500 p-1.5 rounded-full">
-                <Users className="w-4 h-4" />
-              </div>
-            </div>
+                {/* Patient Connector Path */}
+                <line x1="50" y1="50" x2="18" y2="50" stroke="#ffffff" strokeOpacity="0.08" strokeWidth="0.5" />
+                <line x1="50" y1="50" x2="18" y2="50" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('patient') ? '0.7' : '0'} strokeWidth="1" className="transition-all duration-500" />
+                <line x1="50" y1="50" x2="18" y2="50" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('patient') ? '0.18' : '0'} strokeWidth="3" className="transition-all duration-500 blur-[1px]" />
 
-            <div className="mt-8">
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-6xl md:text-7xl font-extralight tracking-tighter text-[#1D1D1F]">25M+</span>
-                <span className="text-red-500 font-mono text-xs font-bold uppercase">Patients</span>
-              </div>
+                {/* Doctor Connector Path */}
+                <line x1="50" y1="50" x2="82" y2="50" stroke="#ffffff" strokeOpacity="0.08" strokeWidth="0.5" />
+                <line x1="50" y1="50" x2="82" y2="50" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('doctor') ? '0.7' : '0'} strokeWidth="1" className="transition-all duration-500" />
+                <line x1="50" y1="50" x2="82" y2="50" stroke="#3b82f6" strokeOpacity={connectedNodes.includes('doctor') ? '0.18' : '0'} strokeWidth="3" className="transition-all duration-500 blur-[1px]" />
 
-              <div className="w-full bg-[#F5F5F7] h-2 rounded-full overflow-hidden mt-6 relative">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '80%' }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, ease: 'easeOut' }}
-                  className="bg-red-500 h-full rounded-full"
-                />
-              </div>
+                {/* Calm, animated blue signal dots moving along active lines towards center */}
+                {connectedNodes.map((node) => (
+                  node !== 'medilink' && (
+                    <circle key={node} r="1.2" className="fill-[#3b82f6] filter drop-shadow-[0_0_3px_#3b82f6]">
+                      <animateMotion 
+                        dur="2.5s" 
+                        repeatCount="indefinite"
+                        path={
+                          node === 'patient' ? "M 18,50 L 50,50" :
+                          node === 'doctor' ? "M 82,50 L 50,50" :
+                          node === 'hospital' ? "M 50,82 L 50,50" :
+                          "M 50,18 L 50,50"
+                        }
+                      />
+                    </circle>
+                  )
+                ))}
+              </svg>
 
-              <p className="text-xs text-[#86868B] mt-5 font-sans leading-relaxed">
-                Patients locked behind medical operational silos. Egyptian users navigating fragmented appointment pipelines with complex, unexplained skin biopsy and lab results.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Spacious structural cards displaying fragmented segments */}
-        <div className="space-y-6 pt-4">
-          <span className="text-[11px] font-mono text-[#86868B] tracking-widest uppercase block font-semibold">THE UNTUNED WORKFLOW SILOS IN TYPICAL SCRIPT-LEVEL CHATBOTS:</span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {fragments.map((frag, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                whileHover={{ scale: 1.01, border: '1px solid #D2D2D7' }}
-                className={`bg-white border border-[#D2D2D7]/30 rounded-2xl p-5 shadow-sm transition-all text-left ${frag.color}`}
-                id={`fragment-card-${idx}`}
+              {/* CENTER HUB: MediLink Integrator Hub */}
+              <button 
+                onClick={() => handleNodeClick('medilink')}
+                className={`absolute w-24 h-24 rounded-2xl bg-[#17181C] border transition-all duration-300 flex flex-col items-center justify-center cursor-pointer z-20 ${
+                  activeNode === 'medilink' 
+                    ? 'border-[#0071E3] shadow-[0_0_20px_rgba(0,113,227,0.25)] bg-[#1B1D24] scale-[1.03]' 
+                    : 'border-white/5 hover:border-white/10 hover:scale-[1.01]'
+                }`}
               >
-                <h4 className="text-sm font-display font-semibold text-[#1D1D1F] mb-2">{frag.title}</h4>
-                <p className="text-xs text-[#6E6E73] leading-relaxed font-sans font-light">
-                  {frag.desc}
-                </p>
-              </motion.div>
-            ))}
+                <div className="w-9 h-9 rounded-full bg-[#0071E3]/15 flex items-center justify-center mb-1.5 animate-pulse">
+                  <Activity className="w-4.5 h-4.5 text-[#0071E3]" />
+                </div>
+                <span className="text-[10px] font-mono text-white tracking-widest uppercase font-bold">medilink</span>
+                <span className="text-[7px] font-mono text-neutral-400 uppercase font-bold tracking-wider">INTEGRATOR</span>
+              </button>
+
+              {/* Patient Node */}
+              <button
+                onClick={() => handleNodeClick('patient')}
+                className={`absolute p-3.5 rounded-2xl border transition-all duration-300 flex flex-col items-center cursor-pointer z-10 top-1/2 left-4 -translate-y-1/2 ${
+                  connectedNodes.includes('patient') 
+                    ? 'border-blue-500/40 bg-[#16171B] text-white opacity-100' 
+                    : 'border-white/[0.04] bg-[#121316]/40 text-neutral-500 opacity-45 hover:opacity-75'
+                } ${
+                  activeNode === 'patient' 
+                    ? 'shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500/30 scale-[1.03]' 
+                    : 'hover:scale-[1.01]'
+                }`}
+              >
+                <div className={`p-2 rounded-xl mb-1 transition-colors ${
+                  connectedNodes.includes('patient') ? 'bg-blue-500/10 text-blue-400' : 'bg-neutral-800/20 text-neutral-500'
+                }`}>
+                  <User className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[8px] font-mono font-bold uppercase tracking-wider">PATIENT</span>
+              </button>
+
+              {/* Doctor Node */}
+              <button
+                onClick={() => handleNodeClick('doctor')}
+                className={`absolute p-3.5 rounded-2xl border transition-all duration-300 flex flex-col items-center cursor-pointer z-10 top-1/2 right-4 -translate-y-1/2 ${
+                  connectedNodes.includes('doctor') 
+                    ? 'border-purple-500/40 bg-[#16171B] text-white opacity-100' 
+                    : 'border-white/[0.04] bg-[#121316]/40 text-neutral-500 opacity-45 hover:opacity-75'
+                } ${
+                  activeNode === 'doctor' 
+                    ? 'shadow-[0_0_15px_rgba(168,85,247,0.25)] ring-1 ring-purple-500/30 scale-[1.03]' 
+                    : 'hover:scale-[1.01]'
+                }`}
+              >
+                <div className={`p-2 rounded-xl mb-1 transition-colors ${
+                  connectedNodes.includes('doctor') ? 'bg-purple-500/10 text-purple-400' : 'bg-neutral-800/20 text-neutral-500'
+                }`}>
+                  <Stethoscope className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[8px] font-mono font-bold uppercase tracking-wider">DOCTOR</span>
+              </button>
+
+              {/* Hospital Node */}
+              <button
+                onClick={() => handleNodeClick('hospital')}
+                className={`absolute p-3.5 rounded-2xl border transition-all duration-300 flex flex-col items-center cursor-pointer z-10 bottom-4 left-1/2 -translate-x-1/2 ${
+                  connectedNodes.includes('hospital') 
+                    ? 'border-emerald-500/40 bg-[#16171B] text-white opacity-100' 
+                    : 'border-white/[0.04] bg-[#121316]/40 text-neutral-500 opacity-45 hover:opacity-75'
+                } ${
+                  activeNode === 'hospital' 
+                    ? 'shadow-[0_0_15px_rgba(16,185,129,0.25)] ring-1 ring-emerald-500/30 scale-[1.03]' 
+                    : 'hover:scale-[1.01]'
+                }`}
+              >
+                <div className={`p-2 rounded-xl mb-1 transition-colors ${
+                  connectedNodes.includes('hospital') ? 'bg-emerald-500/10 text-emerald-400' : 'bg-neutral-800/20 text-neutral-500'
+                }`}>
+                  <Building2 className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[8px] font-mono font-bold uppercase tracking-wider">HOSPITAL</span>
+              </button>
+
+              {/* Pharmacy Node */}
+              <button
+                onClick={() => handleNodeClick('pharmacy')}
+                className={`absolute p-3.5 rounded-2xl border transition-all duration-300 flex flex-col items-center cursor-pointer z-10 top-4 left-1/2 -translate-x-1/2 ${
+                  connectedNodes.includes('pharmacy') 
+                    ? 'border-amber-500/40 bg-[#16171B] text-white opacity-100' 
+                    : 'border-white/[0.04] bg-[#121316]/40 text-neutral-500 opacity-45 hover:opacity-75'
+                } ${
+                  activeNode === 'pharmacy' 
+                    ? 'shadow-[0_0_15px_rgba(245,158,11,0.25)] ring-1 ring-amber-500/30 scale-[1.03]' 
+                    : 'hover:scale-[1.01]'
+                }`}
+              >
+                <div className={`p-2 rounded-xl mb-1 transition-colors ${
+                  connectedNodes.includes('pharmacy') ? 'bg-amber-500/10 text-amber-400' : 'bg-neutral-800/20 text-neutral-500'
+                }`}>
+                  <Pill className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[8px] font-mono font-bold uppercase tracking-wider">PHARMACY</span>
+              </button>
+            </div>
+
+            {/* Selected Node Details Box */}
+            <div className="w-full max-w-[390px] mt-4 min-h-[110px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeNode}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="bg-[#1C1D22] border border-white/5 p-4 rounded-2xl text-left shadow-lg"
+                >
+                  {activeNode === 'medilink' ? (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0071E3] animate-ping" />
+                        <h4 className="text-xs font-mono font-bold text-[#0071E3] uppercase tracking-wider">MediLink Central Hub</h4>
+                      </div>
+                      <p className="text-[11.5px] text-neutral-300 font-sans leading-relaxed">
+                        Orchestrates the entire care cycle. Dynamic data routing links patients with doctor clinics, regional hospitals, and physical pharmacy counters cumulatively as they join the treatment thread.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase mb-1 tracking-wider">
+                        {nodes.find(n => n.id === activeNode)?.title || activeNode} {connectedNodes.includes(activeNode) && '✓ Connected'}
+                      </h4>
+                      <p className="text-[11.5px] text-neutral-300 font-sans leading-relaxed mb-1">
+                        {nodes.find(n => n.id === activeNode)?.details}
+                      </p>
+                      <span className="text-[8px] font-mono text-[#0071E3] font-bold uppercase">
+                        {connectedNodes.includes(activeNode) ? 'Active continuous channel' : 'Click node to establish live link'}
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
+
+          {/* Right Block: AutoRec Interactive Scoring Simulator */}
+          <div className="lg:col-span-6 space-y-6 text-left w-full">
+            <div className="bg-[#121318] border border-white/[0.04] rounded-3xl shadow-xl p-5 md:p-6 transition-all duration-300">
+              
+              <div className="flex items-center gap-3 mb-5 pb-4 border-b border-white/5">
+                <div className="p-2.5 rounded-lg bg-[#0071E3]/15 text-[#0071E3]">
+                  <Sliders className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display text-base font-semibold text-[#F5F5F7]">
+                      AutoRec Recommendation Simulator
+                    </h3>
+                    <span className="text-[8px] font-mono font-bold bg-[#0071E3] text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Intelligence Engine</span>
+                  </div>
+                  <p className="text-xs text-neutral-400 font-sans mt-0.5">
+                    How Find & Book computes Dr. Yousry’s matching score.
+                  </p>
+                </div>
+              </div>
+
+              {/* Interactive controls */}
+              <div className="grid grid-cols-2 gap-4 mb-5">
+                {/* Symptoms selector */}
+                <div>
+                  <span className="text-[9px] font-mono text-neutral-500 font-bold uppercase tracking-wider block mb-1.5">Symptom Input</span>
+                  <div className="flex flex-col gap-1.5">
+                    {[
+                      { id: 'rash', label: 'Skin Rash' },
+                      { id: 'cough', label: 'Persistent Cough' },
+                      { id: 'backpain', label: 'Lower Back Pain' }
+                    ].map(sym => (
+                      <button
+                        key={sym.id}
+                        onClick={() => setSelectedSymptom(sym.id as any)}
+                        className={`px-3 py-2 rounded-xl text-left text-xs font-mono transition-colors border ${
+                          selectedSymptom === sym.id 
+                            ? 'bg-[#0071E3]/15 border-[#0071E3] text-white font-semibold shadow-[0_0_10px_rgba(0,113,227,0.1)]' 
+                            : 'bg-transparent border-white/5 text-neutral-400 hover:border-white/10'
+                        }`}
+                      >
+                        {sym.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Location selector */}
+                <div>
+                  <span className="text-[9px] font-mono text-neutral-500 font-bold uppercase tracking-wider block mb-1.5">User Location</span>
+                  <div className="flex flex-col gap-1.5">
+                    {[
+                      { id: 'cairo', label: 'Cairo (Local)' },
+                      { id: 'alex', label: 'Alexandria' }
+                    ].map(loc => (
+                      <button
+                        key={loc.id}
+                        onClick={() => setSelectedLocation(loc.id as any)}
+                        className={`px-3 py-2 rounded-xl text-left text-xs font-mono transition-colors border ${
+                          selectedLocation === loc.id 
+                            ? 'bg-[#0071E3]/15 border-[#0071E3] text-white font-semibold shadow-[0_0_10px_rgba(0,113,227,0.1)]' 
+                            : 'bg-transparent border-white/5 text-neutral-400 hover:border-white/10'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 opacity-60" />
+                          {loc.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Patient history and availability toggles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                {/* Historical care affinity */}
+                <div className="flex items-center justify-between p-3.5 bg-neutral-900/60 border border-white/5 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div>
+                      <span className="text-[9.5px] font-mono text-neutral-300 font-bold block">Care Affinity</span>
+                      <span className="text-[8px] font-sans text-neutral-500">Prioritize past specialists</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setHasHistory(!hasHistory)}
+                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 shrink-0 ${hasHistory ? 'bg-[#0071E3]' : 'bg-neutral-800'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform ${hasHistory ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                {/* Available Today toggle */}
+                <div className="flex items-center justify-between p-3.5 bg-neutral-900/60 border border-white/5 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-sky-400 shrink-0" />
+                    <div>
+                      <span className="text-[9.5px] font-mono text-neutral-300 font-bold block">Available Today</span>
+                      <span className="text-[8px] font-sans text-neutral-500">Only open slots today</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setOnlyAvailableNow(!onlyAvailableNow)}
+                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 shrink-0 ${onlyAvailableNow ? 'bg-[#0071E3]' : 'bg-neutral-800'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform ${onlyAvailableNow ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Dynamic computed scoring list */}
+              <div className="space-y-2">
+                <span className="text-[9px] font-mono text-neutral-500 font-bold uppercase tracking-wider block mb-1">
+                  Computed Match Rankings:
+                </span>
+                
+                {scoredDoctors.map((doc) => {
+                  const isTop = doc.score >= 80;
+                  const scoreColor = isTop 
+                    ? 'text-emerald-400 bg-emerald-500/5 border-emerald-500/20' 
+                    : 'text-neutral-400 bg-white/[0.02] border-white/5';
+
+                  const isYousry = doc.name.includes('Yousry');
+
+                  return (
+                    <div 
+                      key={doc.name}
+                      className={`p-3 rounded-2xl border flex justify-between items-center transition-all duration-300 ${
+                        isYousry ? 'ring-2 ring-purple-500 border-purple-500 bg-purple-950/10 scale-[1.01]' : scoreColor
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-neutral-200">{doc.name}</span>
+                          <span className="text-[8px] font-mono bg-white/5 px-1.5 py-0.5 rounded text-neutral-400 uppercase font-bold">{doc.specialty}</span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1 text-[10px] text-neutral-500">
+                          <span className="flex items-center gap-0.5">
+                            <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                            {doc.rating}
+                          </span>
+                          <span className="capitalize">{doc.location === 'cairo' ? 'Cairo' : 'Alexandria'}</span>
+                          {doc.availableToday && (
+                            <span className="text-emerald-500 font-mono text-[9px] font-bold bg-emerald-500/10 px-1 py-0.2 rounded">Today</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="text-[8px] font-mono text-neutral-500 uppercase block font-bold">AutoRec Match</span>
+                        <span className="text-xs sm:text-sm font-mono font-bold text-white">{doc.score}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Explanatory summary card */}
+              <div className="mt-5 p-4 border border-[#0071E3]/25 bg-[#0071E3]/5 rounded-2xl flex items-start gap-2.5">
+                <div className="w-2 h-2 bg-[#0071E3] rounded-full mt-1.5 shrink-0 animate-pulse" />
+                <p className="text-[10px] text-neutral-400 leading-relaxed font-sans">
+                  <strong>Why AutoRec is the intelligence layer:</strong> Instead of simple static directories, AutoRec weights proximity, symptom specialization indexes, history, and real-time open slots to rank doctors, recommending Dr. Yousry Mansour at the peak.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
         </div>
+
+        {/* Natural continuous scroll link indicator */}
+        <div className="mt-16 flex justify-center">
+          <button 
+            onClick={scrollToNextSection}
+            className="px-6 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white border border-white/5 rounded-full text-xs font-mono font-bold uppercase tracking-wide transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <span>Next: AutoRec Engine</span>
+            <ArrowRight className="w-4 h-4 text-neutral-400" />
+          </button>
+        </div>
+
       </div>
     </div>
   );

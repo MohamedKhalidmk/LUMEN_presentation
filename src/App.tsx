@@ -8,7 +8,11 @@ import {
 // Import modular scene components
 import HeroScene from './components/HeroScene';
 import ProblemScene from './components/ProblemScene';
+import AutoRecDetailScene from './components/AutoRecDetailScene';
+import RecordsPhoneScene from './components/RecordsPhoneScene';
 import ProductScene from './components/ProductScene';
+import ChatPhoneScene from './components/ChatPhoneScene';
+import BtsWorkflowScene from './components/BtsWorkflowScene';
 import ComparisonScene from './components/ComparisonScene';
 import LumenCoreScene from './components/LumenCoreScene';
 import HTANScene from './components/HTANScene';
@@ -17,58 +21,65 @@ import RoutingScene from './components/RoutingScene';
 import QualityGateScene from './components/QualityGateScene';
 import PatientExampleScene from './components/PatientExampleScene';
 import DeploymentScene from './components/DeploymentScene';
-import MarketFutureScene from './components/MarketFutureScene';
 
 const ALL_CHAPTERS = [
-  { id: 'hero', name: '01. Recrystallization', title: 'Lumen Reveal' },
-  { id: 'problem', name: '02. Care Gap', title: 'The Problem' },
-  { id: 'product', name: '03. Patient Portal', title: 'MediLink App' },
-  { id: 'comparison', name: '04. Comparison', title: 'Platform Delta' },
-  { id: 'core', name: '05. Architecture', title: 'Lumen Core' },
-  { id: 'htan', name: '06. Segmentation', title: 'HTAN Vision' },
-  { id: 'rag', name: '07. Evidence Vault', title: 'Biomedical RAG' },
-  { id: 'routing', name: '08. Router', title: 'Routing Gateway' },
-  { id: 'gate', name: '09. Quality Edge', title: 'Context Filter' },
-  { id: 'example', name: '10. Case Study', title: 'Patient Example' },
-  { id: 'deployment', name: '11. Cloud EC2', title: 'Cloud Deploy' },
-  { id: 'market', name: '12. Roadmap', title: 'Future Strategy' }
+  { id: 'hero', name: 'Meet MediLink', title: 'MediLink Reveal' },
+  { id: 'problem', name: 'Connected Care', title: 'Connected Care Network' },
+  { id: 'autorec_detail', name: 'AutoRec Engine', title: 'AutoRec Deep Dive' },
+  { id: 'records_intro', name: 'Dossier Unlocked', title: 'Dossier Unlock' },
+  { id: 'product', name: 'Patient Records', title: 'Medical Records' },
+  { id: 'chat_intro', name: 'AI Chat Unlocked', title: 'AI Chat Unlock' },
+  { id: 'bts_workflow', name: 'Behind the Scenes', title: 'Behind the Scenes' },
+  { id: 'core', name: 'Lumen Architecture', title: 'Lumen Core' },
+  { id: 'routing', name: 'Router', title: 'Routing Gateway' },
+  { id: 'gate', name: 'Quality Edge', title: 'Context Filter' },
+  { id: 'htan', name: 'Segmentation', title: 'HTAN Vision' },
+  { id: 'rag', name: 'Evidence Vault', title: 'Biomedical RAG' },
+  { id: 'example', name: 'Case Study', title: 'Patient Example' },
+  { id: 'deployment', name: 'Cloud EC2', title: 'Cloud Deploy' },
+  { id: 'comparison', name: 'Platform Delta', title: 'Comparison' }
 ];
 
 const TOUR_STEPS = [
   {
     id: 'hero',
-    title: 'Lumen Introduction',
-    voiceText: 'Welcome to MediLink, powered by Lumen. Here we present a patient-centered framework that unifies digitized medical workflows under a direct clinical intelligence pipeline.'
+    title: 'Meet MediLink',
+    voiceText: 'Welcome to MediLink, the healthcare platform that connects the patient journey. MediLink brings guidance, booking, records, and care coordination into one patient experience.'
   },
   {
     id: 'problem',
-    title: 'The care digitization gap',
-    voiceText: 'Egyptian digital health holds key assets, yet with only a six point six seven percent care orchestration rate, twenty-five million patients grapple with disjointed folders, ungrounded bots, and uncoordinated specialists.'
+    title: 'Connected Care Network',
+    voiceText: 'A connected care network links patients with doctors, clinics, hospitals, and pharmacies. Our intelligent AutoRec recommendation logic coordinates the entire patient journey based on symptoms, availability, location, and history.'
+  },
+  {
+    id: 'autorec_detail',
+    title: 'AutoRec Neural Engine',
+    voiceText: 'Our AutoRec layer uses a neural collaborative filtering autoencoder. It fuses user history vectors with real-time symptom vectors to predict perfect match affinities.'
+  },
+  {
+    id: 'records_intro',
+    title: 'Medical Records Unlocked',
+    voiceText: 'After visiting Dr. Yousry, your complete clinical files are securely appended to your unified dossier. Try opening Medical Records on the phone mockup to explore.'
   },
   {
     id: 'product',
-    title: 'The unified patient dashboard',
-    voiceText: 'MediLink offers three seamless customer pillars. Easy consultation AI chat, Swin-T skin mole boundary scanning, and direct physical doctor booking options linked to patients cases.'
+    title: 'One record, one journey',
+    voiceText: 'MediLink consolidates symptoms, appointments, reports, prescriptions, doctor notes, and follow-ups into a unified clinical dossier. Every care interaction becomes continuous context.'
   },
   {
-    id: 'comparison',
-    title: 'Platform comparatives',
-    voiceText: 'Vezeeta, Altibbi, and WebTeb excel in specific pieces. Only MediLink unifies the care cycle, passing clinical case files seamlessly to physical physicians.'
+    id: 'chat_intro',
+    title: 'Medi AI Chat Unlocked',
+    voiceText: 'With your treatment history logged securely, our intelligent Chat system has the perfect clinical context to guide recovery without repeating yourself.'
+  },
+  {
+    id: 'bts_workflow',
+    title: 'Behind the Scenes Workflow',
+    voiceText: 'Watch the agent work behind the scenes. The Medi AI Agent minimizes the chat app, navigates the phone home screen, opens Vezeeta, completes the booking speedrun, and syncs back seamlessly.'
   },
   {
     id: 'core',
     title: 'Lumen core architecture',
     voiceText: 'Lumen is a system of specialized components. It routes user tasks into image segmenters, vector literature grounders, and safety filters to prevent hallucinations.'
-  },
-  {
-    id: 'htan',
-    title: 'HTAN computer vision',
-    voiceText: 'The Hyper-connected Transformer Attention Network outlines skin anomaly margins. Intended for visual tracing context, it achieves a ninety point three two percent Dice score; is segmentation only, never rendering diagnoses.'
-  },
-  {
-    id: 'rag',
-    title: 'Biomedical vector search',
-    voiceText: 'Lumen retrieves abstracts from twenty-five million papers in Weaviate. Supported by S-PubMedBERT, it forces final outputs to cite real publications, ensuring evidence-based safety.'
   },
   {
     id: 'routing',
@@ -81,6 +92,16 @@ const TOUR_STEPS = [
     voiceText: 'All tool data passes our Quality Gate. Irrelevant logs are stripped to clean context packages. As we say: tools may help Sonnet, but they cannot poison it.'
   },
   {
+    id: 'htan',
+    title: 'HTAN computer vision',
+    voiceText: 'The Hyper-connected Transformer Attention Network outlines skin anomaly margins. Intended for visual tracing context, it achieves a ninety point three two percent Dice score; is segmentation only, never rendering diagnoses.'
+  },
+  {
+    id: 'rag',
+    title: 'Biomedical vector search',
+    voiceText: 'Lumen retrieves abstracts from twenty-five million papers in Weaviate. Supported by S-PubMedBERT, it forces final outputs to cite real publications, ensuring evidence-based safety.'
+  },
+  {
     id: 'example',
     title: 'Request simulation',
     voiceText: 'Watch a clinical mole scan progress from upload, through routing, visual tracing, dense literature matching, and gate checks, into direct physician summary exports.'
@@ -91,9 +112,9 @@ const TOUR_STEPS = [
     voiceText: 'Lumen is containerized as modular FastAPI slots on AWS EC2. Intricate GPU nodes run separate from general CPU endpoints, yielding high uptime.'
   },
   {
-    id: 'market',
-    title: 'Enterprise scaling',
-    voiceText: 'MediLink remains free for patients. Hospitals and research groups support us through regional coordination hub subscriptions. This is medical AI built for the real world.'
+    id: 'comparison',
+    title: 'Platform comparatives',
+    voiceText: 'Vezeeta, Altibbi, and WebTeb excel in specific pieces. Only MediLink unifies the care cycle, passing clinical case files seamlessly to physical physicians.'
   }
 ];
 
@@ -419,14 +440,6 @@ export default function App() {
       <main className="pt-14 relative w-full">
         <div ref={el => { sectionRefs.current['hero'] = el; }} id="hero" className="scroll-mt-14">
           <HeroScene 
-            onEnterExperience={() => {
-              if (tourActive) {
-                handleNextStep();
-              } else {
-                scrollToSection('problem');
-                setActiveChapter('problem');
-              }
-            }}
             onStartTour={startTour}
           />
         </div>
@@ -435,24 +448,28 @@ export default function App() {
           <ProblemScene />
         </div>
 
+        <div ref={el => { sectionRefs.current['autorec_detail'] = el; }} id="autorec_detail" className="scroll-mt-14">
+          <AutoRecDetailScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['records_intro'] = el; }} id="records_intro" className="scroll-mt-14">
+          <RecordsPhoneScene />
+        </div>
+
         <div ref={el => { sectionRefs.current['product'] = el; }} id="product" className="scroll-mt-14">
           <ProductScene />
         </div>
 
-        <div ref={el => { sectionRefs.current['comparison'] = el; }} id="comparison" className="scroll-mt-14">
-          <ComparisonScene />
+        <div ref={el => { sectionRefs.current['chat_intro'] = el; }} id="chat_intro" className="scroll-mt-14">
+          <ChatPhoneScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['bts_workflow'] = el; }} id="bts_workflow" className="scroll-mt-14">
+          <BtsWorkflowScene />
         </div>
 
         <div ref={el => { sectionRefs.current['core'] = el; }} id="core" className="scroll-mt-14">
           <LumenCoreScene />
-        </div>
-
-        <div ref={el => { sectionRefs.current['htan'] = el; }} id="htan" className="scroll-mt-14">
-          <HTANScene />
-        </div>
-
-        <div ref={el => { sectionRefs.current['rag'] = el; }} id="rag" className="scroll-mt-14">
-          <RAGScene />
         </div>
 
         <div ref={el => { sectionRefs.current['routing'] = el; }} id="routing" className="scroll-mt-14">
@@ -463,6 +480,14 @@ export default function App() {
           <QualityGateScene />
         </div>
 
+        <div ref={el => { sectionRefs.current['htan'] = el; }} id="htan" className="scroll-mt-14">
+          <HTANScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['rag'] = el; }} id="rag" className="scroll-mt-14">
+          <RAGScene />
+        </div>
+
         <div ref={el => { sectionRefs.current['example'] = el; }} id="example" className="scroll-mt-14">
           <PatientExampleScene />
         </div>
@@ -471,8 +496,8 @@ export default function App() {
           <DeploymentScene />
         </div>
 
-        <div ref={el => { sectionRefs.current['market'] = el; }} id="market" className="scroll-mt-14">
-          <MarketFutureScene />
+        <div ref={el => { sectionRefs.current['comparison'] = el; }} id="comparison" className="scroll-mt-14">
+          <ComparisonScene />
         </div>
       </main>
     </div>

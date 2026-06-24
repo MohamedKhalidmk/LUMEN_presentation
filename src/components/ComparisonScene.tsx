@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Check, X, ArrowRight, Info, Sparkles, Shield, Cpu, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Check, X, Info, Sparkles } from 'lucide-react';
 
 export default function ComparisonScene() {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
@@ -9,14 +9,14 @@ export default function ComparisonScene() {
     { 
       name: 'Vezeeta', 
       highlight: false, 
-      desc: 'Booking directory',
+      desc: 'Booking directory listings',
       color: 'bg-[#F5F5F7] text-[#1D1D1F]', 
       badge: 'Listing Directory'
     },
     { 
       name: 'Altibbi', 
       highlight: false, 
-      desc: 'Telemedicine hotlines',
+      desc: 'Telemedicine advice hotlines',
       color: 'bg-[#F5F5F7] text-[#1D1D1F]', 
       badge: 'Advice Hotlines'
     },
@@ -28,11 +28,11 @@ export default function ComparisonScene() {
       badge: 'Static Wikipedia'
     },
     { 
-      name: 'MediLink (Lumen)', 
+      name: 'MediLink Platform', 
       highlight: true, 
-      desc: 'End-to-end cognitive flow',
+      desc: 'End-to-end coordinated flow',
       color: 'bg-[#0071E3] text-white ring-4 ring-[#0071E3]/20', 
-      badge: 'Cognitive Pipeline'
+      badge: 'Continuous Care Pathway'
     }
   ];
 
@@ -43,52 +43,52 @@ export default function ComparisonScene() {
       altibbi: false,
       webteb: false,
       medilink: true,
-      details: 'Connects patients directly with local Egyptian clinic consulting directories.',
+      details: 'Connects patients directly with local Egyptian clinic consulting directories for face-to-face appointments.',
       category: 'Care Access'
     },
     {
-      name: 'Symptom AI Chat Integration',
+      name: 'Symptom AI Integration',
       vezeeta: false,
       altibbi: true,
       webteb: false,
       medilink: true,
-      details: 'Instant conversational reviews built into the core user interface.',
+      details: 'Instant conversational symptom tracking built into the core interface to assist with initial assessments.',
       category: 'Symptom Analysis'
     },
     {
-      name: 'Dermoscopic Vision Segmentation (HTAN)',
+      name: 'HTAN Segmentation',
       vezeeta: false,
       altibbi: false,
       webteb: false,
       medilink: true,
-      details: 'Our custom core model outlines skin lesions margins with 90.32% Dice score accuracy.',
+      details: 'Advanced computer vision that traces and outlines anomalous skin lesion margins to enrich diagnostic context.',
       category: 'Clinical Computer Vision'
     },
     {
-      name: 'Evidence Grounding via Weaviate RAG',
+      name: 'RAG Grounding',
       vezeeta: false,
       altibbi: false,
       webteb: false,
       medilink: true,
-      details: 'Searches 25M+ PubMed papers using S-PubMedBERT, fully eliminating model hallucinations.',
+      details: 'Semantic search of 25M+ medical journals, forcing system guidance to cite peer-reviewed academic evidence.',
       category: 'Clinical Proof Layer'
     },
     {
-      name: 'Secure Structured Patient Dossier Export',
+      name: 'Secure Patient Dossier Export',
       vezeeta: false,
       altibbi: false,
       webteb: false,
       medilink: true,
-      details: 'Compiles medical scans, prompts, and scientific citations into a clean triage PDF for human doctors.',
+      details: 'Compiles e-scans, symptoms, and citations into a structured folder sent securely to physical doctors.',
       category: 'Physician Handoff'
     },
     {
-      name: 'Colloquial Egyptian Arabic Natural Language',
+      name: 'Local Arabic Dialect Support',
       vezeeta: false,
       altibbi: false,
       webteb: false,
       medilink: true,
-      details: 'Engineered specifically for local dialects, translating colloquial terms into structured symptoms.',
+      details: 'Engineered specifically for Egyptian colloquial dialects, translating informal feedback into formal clinical descriptors.',
       category: 'Accessibility'
     }
   ];
@@ -180,7 +180,7 @@ export default function ComparisonScene() {
                   <th className="p-6 text-center text-xs font-mono text-[#86868B]">Vezeeta</th>
                   <th className="p-6 text-center text-xs font-mono text-[#86868B]">Altibbi</th>
                   <th className="p-6 text-center text-xs font-mono text-[#86868B]">WebTeb</th>
-                  <th className="p-6 text-center text-xs font-mono text-[#0071E3] font-bold">MediLink (Lumen)</th>
+                  <th className="p-6 text-center text-xs font-mono text-[#0071E3] font-bold">MediLink Platform</th>
                 </tr>
               </thead>
               
@@ -201,15 +201,18 @@ export default function ComparisonScene() {
                         </div>
                         
                         {/* Interactive Accordion detail */}
-                        {selectedFeature === fIdx && (
-                          <motion.p 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="text-xs text-[#6E6E73] mt-2 font-sans font-light leading-relaxed bg-white border border-neutral-100 p-3 rounded-lg"
-                          >
-                            {feat.details}
-                          </motion.p>
-                        )}
+                        <AnimatePresence>
+                          {selectedFeature === fIdx && (
+                            <motion.p 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="text-xs text-[#6E6E73] mt-2 font-sans font-light leading-relaxed bg-white border border-neutral-100 p-3 rounded-lg overflow-hidden"
+                            >
+                              {feat.details}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </td>
 
