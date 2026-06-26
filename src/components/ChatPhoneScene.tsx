@@ -120,20 +120,9 @@ export default function ChatPhoneScene() {
                   <span className="text-neutral-500 font-normal">Continuous context.</span>
                 </h2>
 
-                <p className="text-base sm:text-lg text-[#6E6E73] leading-relaxed font-sans font-light">
-                  With your symptoms, specialist consult findings, and active gel prescriptions recorded securely inside one continuous dossier, our conversational AI system gains full clinical context. 
-                  No repeating yourself—just smart, evidence-based recovery guidance.
+                <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
+                  Conversational assistant leveraging secure, unified patient context for evidence-based recovery guidance.
                 </p>
-
-                <div className="bg-white/60 p-5 rounded-2xl border border-neutral-200/50 space-y-2 text-xs text-[#6E6E73] leading-relaxed font-sans">
-                  <p className="font-semibold text-neutral-800">⚡ Conversational Care Intelligence:</p>
-                  <p>
-                    Once your medical records and prescriptions are safely locked inside your Cairo Specialty Clinic dossier, the AI system coordinates the next phase of your journey without friction.
-                  </p>
-                  <p className="font-mono text-[10px] text-emerald-600">
-                    Click "Launch Medi AI Chat" or tap the newly unlocked option on the phone mockup to test the active agent flow.
-                  </p>
-                </div>
 
                 <div className="pt-2 flex flex-wrap gap-4 items-center">
                   <button

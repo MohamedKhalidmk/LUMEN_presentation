@@ -38,8 +38,8 @@ export default function DeploymentScene() {
             Isolated cloud computing. <br />
             <span className="text-neutral-500">FastAPI distributed endpoints.</span>
           </h2>
-          <p className="text-neutral-400 text-sm md:text-base font-light leading-relaxed font-sans">
-            To ensure high horizontal scalability and absolute patient isolation, Lumen is containerized into physical distributed CPU and GPU instance nodes on AWS EC2. Each service communicates securely over verified HTTPS tunnels.
+          <p className="text-xs font-mono text-neutral-500 uppercase tracking-tight">
+            Distributed horizontal scaling with end-to-end patient isolation.
           </p>
         </div>
 

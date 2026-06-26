@@ -17,6 +17,8 @@ import ComparisonScene from './components/ComparisonScene';
 import LumenCoreScene from './components/LumenCoreScene';
 import HTANScene from './components/HTANScene';
 import RAGScene from './components/RAGScene';
+import HTANExplainScene from './components/HTANExplainScene';
+import RAGExplainScene from './components/RAGExplainScene';
 import RoutingScene from './components/RoutingScene';
 import QualityGateScene from './components/QualityGateScene';
 import PatientExampleScene from './components/PatientExampleScene';
@@ -30,10 +32,12 @@ const ALL_CHAPTERS = [
   { id: 'product', name: 'Patient Records', title: 'Medical Records' },
   { id: 'chat_intro', name: 'AI Chat Unlocked', title: 'AI Chat Unlock' },
   { id: 'bts_workflow', name: 'Behind the Scenes', title: 'Behind the Scenes' },
-  { id: 'core', name: 'Lumen Architecture', title: 'Lumen Core' },
+  { id: 'core', name: 'Lumen System', title: 'Lumen System' },
   { id: 'routing', name: 'Router', title: 'Routing Gateway' },
   { id: 'gate', name: 'Quality Edge', title: 'Context Filter' },
+  { id: 'htan_explain', name: 'About Vision', title: 'Vision & HTAN Theory' },
   { id: 'htan', name: 'Segmentation', title: 'HTAN Vision' },
+  { id: 'rag_explain', name: 'About RAG', title: 'RAG & Grounding Theory' },
   { id: 'rag', name: 'Evidence Vault', title: 'Biomedical RAG' },
   { id: 'example', name: 'Case Study', title: 'Patient Example' },
   { id: 'deployment', name: 'Cloud EC2', title: 'Cloud Deploy' },
@@ -78,7 +82,7 @@ const TOUR_STEPS = [
   },
   {
     id: 'core',
-    title: 'Lumen core architecture',
+    title: 'Lumen System',
     voiceText: 'Lumen is a system of specialized components. It routes user tasks into image segmenters, vector literature grounders, and safety filters to prevent hallucinations.'
   },
   {
@@ -92,9 +96,19 @@ const TOUR_STEPS = [
     voiceText: 'All tool data passes our Quality Gate. Irrelevant logs are stripped to clean context packages. As we say: tools may help Sonnet, but they cannot poison it.'
   },
   {
+    id: 'htan_explain',
+    title: 'Image Segmentation & HTAN Theory',
+    voiceText: 'Before seeing the empirical results, let’s explore Image Segmentation and our custom HTAN network. Segmentation traces the exact border contours of anomalies, acting as a crucial geometric visual-aid without issuing autonomous diagnoses. HTAN is our mathematical champion, preserving fine details using Birkhoff Polytope projections.'
+  },
+  {
     id: 'htan',
     title: 'HTAN computer vision',
     voiceText: 'The Hyper-connected Transformer Attention Network outlines skin anomaly margins. Intended for visual tracing context, it achieves a ninety point three two percent Dice score; is segmentation only, never rendering diagnoses.'
+  },
+  {
+    id: 'rag_explain',
+    title: 'Biomedical Retrieval-Augmented Generation',
+    voiceText: 'Let’s understand Retrieval-Augmented Generation, or RAG. Standard AI models tend to speculate, which is dangerous in healthcare. RAG forces the system to find real, peer-reviewed medical publications in our Weaviate database and cite them directly, entirely eliminating hallucinations.'
   },
   {
     id: 'rag',
@@ -480,8 +494,16 @@ export default function App() {
           <QualityGateScene />
         </div>
 
+        <div ref={el => { sectionRefs.current['htan_explain'] = el; }} id="htan_explain" className="scroll-mt-14">
+          <HTANExplainScene />
+        </div>
+
         <div ref={el => { sectionRefs.current['htan'] = el; }} id="htan" className="scroll-mt-14">
           <HTANScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['rag_explain'] = el; }} id="rag_explain" className="scroll-mt-14">
+          <RAGExplainScene />
         </div>
 
         <div ref={el => { sectionRefs.current['rag'] = el; }} id="rag" className="scroll-mt-14">

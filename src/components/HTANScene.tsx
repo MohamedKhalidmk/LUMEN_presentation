@@ -63,8 +63,8 @@ export default function HTANScene() {
                 HTAN Vision. <br />
                 <span className="text-neutral-500 font-normal">Empirical findings.</span>
               </h2>
-              <p className="text-neutral-400 text-sm leading-relaxed font-sans font-light">
-                HTAN represents our <strong>Hyper-connected Transformer Attention Network</strong>. In contrast to standard segmentation algorithms, the bottleneck implements parallel multi-scale residual streams projected onto a Birkhoff polytope via dynamic Sinkhorn-Knopp iterations, guaranteeing precise cell border tracing.
+              <p className="text-xs font-mono text-neutral-400 uppercase tracking-tight">
+                Birkhoff polytope projections ensuring precise pathology cell border tracing.
               </p>
             </div>
 

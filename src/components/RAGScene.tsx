@@ -57,8 +57,8 @@ export default function RAGScene() {
                 The model does not speculate. <br />
                 <span className="text-[#86868B] font-normal">Lumen references the science.</span>
               </h2>
-              <p className="text-[#424245] text-sm leading-relaxed font-sans font-light">
-                To prevent hallucinations and provide credible advice, Lumen completely avoids speculative generation. By using a Retrieval-Augmented Generation (RAG) system, we query peer-reviewed biomedical literature and embed precise citations before executing any clinical advice.
+              <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
+                Querying peer-reviewed literature to eliminate speculative generation.
               </p>
             </div>
 

@@ -39,10 +39,8 @@ export default function RecordsPhoneScene() {
             <span className="text-neutral-500">Unlocked.</span>
           </h2>
 
-          <p className="text-base sm:text-lg text-[#6E6E73] leading-relaxed font-sans font-light">
-            Once consultation finishes, the patient's complete clinical profiles are appended directly to their unified dossier. 
-            No paperwork to carry, no disconnected clinical systems. 
-            Click <strong className="text-purple-600 font-medium">Medical Records</strong> on the phone mockup to preview.
+          <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
+            Access unified patient dossiers instantly on consult completion.
           </p>
 
           <div className="pt-4 flex flex-wrap gap-4 items-center">

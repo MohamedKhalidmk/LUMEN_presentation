@@ -8,6 +8,45 @@ import {
 
 type PhoneMode = "home" | "find" | "records" | "chat" | "autorec";
 
+const chipSpecs = {
+  cpu: {
+    title: 'Clinical CPU Cores',
+    subtitle: '16-Core Router',
+    desc: '45ms routing latency gateway.',
+    color: '#3B82F6', // Vibrant blue
+    glowColor: 'rgba(59, 130, 246, 0.4)',
+    specText: 'Up to 16-core Router',
+    gradClass: 'from-blue-400 to-indigo-500'
+  },
+  gpu: {
+    title: 'Pathology Vision GPU',
+    subtitle: '40-Core HTAN',
+    desc: '90.32% boundary Dice similarity.',
+    color: '#38BDF8', // Sky blue
+    glowColor: 'rgba(56, 189, 248, 0.4)',
+    specText: 'Up to 40-core GPU',
+    gradClass: 'from-sky-400 to-indigo-400'
+  },
+  memory: {
+    title: 'Unified Medical Memory',
+    subtitle: '512 GB/s Bandwidth',
+    desc: 'Grounds responses in 25M peer-reviewed papers.',
+    color: '#10B981', // Emerald
+    glowColor: 'rgba(16, 185, 129, 0.4)',
+    specText: 'Up to 512 GB/s Bandwidth',
+    gradClass: 'from-emerald-400 to-teal-500'
+  },
+  neural: {
+    title: 'Clinical Neural Engine',
+    subtitle: '32-Core Synthesis',
+    desc: 'Generates safe, dual-gate verified drafts.',
+    color: '#A855F7', // Purple
+    glowColor: 'rgba(168, 85, 247, 0.4)',
+    specText: '32-core Neural Engine',
+    gradClass: 'from-purple-400 to-pink-500'
+  }
+};
+
 export default function LumenCoreScene() {
   const [viewMode, setViewMode] = useState<'question' | 'reveal'>('question');
   const [phoneMode, setPhoneMode] = useState<PhoneMode>("home");
@@ -15,6 +54,7 @@ export default function LumenCoreScene() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simLog, setSimLog] = useState<string[]>([]);
   const [simProgress, setSimProgress] = useState(0);
+  const [selectedSpec, setSelectedSpec] = useState<'cpu' | 'gpu' | 'memory' | 'neural'>('cpu');
 
   const modules = [
     {
@@ -160,9 +200,9 @@ export default function LumenCoreScene() {
                   transition={{ duration: 0.85, delay: 0.08 }}
                   className="text-5xl sm:text-7xl lg:text-8xl font-display font-light text-neutral-900 tracking-tight leading-[1.05]"
                 >
-                  Powered by <span className="text-[#0071E3] font-semibold">Lumen</span>
+                  The <span className="text-[#0071E3] font-semibold">Lumen</span>
                   <br />
-                  <span className="text-[#0071E3] font-bold">AI</span>
+                  <span className="text-[#0071E3] font-bold">System</span>
                 </motion.h1>
 
                 <motion.p
@@ -175,78 +215,183 @@ export default function LumenCoreScene() {
                 </motion.p>
               </div>
 
-              {/* Centered Beautiful Chip Card */}
+              {/* Centered Apple Silicon style Square Chip */}
               <motion.div
                 initial={{ opacity: 0, y: 32, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.9, delay: 0.22 }}
-                className="relative w-full max-w-[460px] px-4 my-8"
+                className="relative w-full max-w-[340px] px-4 my-4"
               >
-                {/* 3D shadow and ambient glow behind the chip */}
-                <div className="absolute inset-0 bg-blue-500/10 blur-[80px] rounded-full -z-10 scale-95 animate-pulse" style={{ animationDuration: '4s' }} />
-                
-                {/* The Microchip Card */}
-                <div className="relative w-full aspect-[1.58] bg-gradient-to-br from-[#1C1C1E] to-[#0A0A0C] rounded-3xl p-6 shadow-[0_30px_70px_rgba(0,0,0,0.35)] border border-neutral-800 flex flex-col justify-between overflow-hidden">
-                  
-                  {/* Physical Gold Pins at the top edge */}
-                  <div className="absolute top-0 inset-x-8 flex justify-between -translate-y-1">
-                    {Array.from({ length: 18 }).map((_, i) => (
-                      <div key={i} className="w-1.5 h-2.5 bg-gradient-to-b from-yellow-600/90 to-yellow-400/90 rounded-sm shadow-inner" />
-                    ))}
-                  </div>
+                <div 
+                  onClick={() => {
+                    const keys: Array<'cpu' | 'gpu' | 'memory' | 'neural'> = ['cpu', 'gpu', 'memory', 'neural'];
+                    const idx = keys.indexOf(selectedSpec);
+                    setSelectedSpec(keys[(idx + 1) % keys.length]);
+                  }}
+                  className="relative w-full aspect-square mx-auto bg-gradient-to-br from-[#1E1E22] via-[#0D0D0E] to-[#050506] rounded-[38px] p-1.5 shadow-[0_35px_80px_rgba(0,0,0,0.6)] border border-neutral-800/80 group transition-all duration-500 hover:scale-[1.01] cursor-pointer"
+                >
+                  {/* Absolute background dynamic ambient glow corresponding to the selected component */}
+                  <div 
+                    className="absolute inset-0 rounded-[38px] filter blur-[35px] opacity-25 transition-all duration-700 pointer-events-none"
+                    style={{ 
+                      background: `radial-gradient(circle at 50% 50%, ${chipSpecs[selectedSpec].color}, transparent 75%)` 
+                    }} 
+                  />
 
-                  {/* Physical Gold Pins at the bottom edge */}
-                  <div className="absolute bottom-0 inset-x-8 flex justify-between translate-y-1">
-                    {Array.from({ length: 18 }).map((_, i) => (
-                      <div key={i} className="w-1.5 h-2.5 bg-gradient-to-t from-yellow-600/90 to-yellow-400/90 rounded-sm shadow-inner" />
-                    ))}
-                  </div>
+                  {/* Outer Sleek Ring */}
+                  <div className="w-full h-full rounded-[34px] border-2 border-neutral-800/50 p-6 flex flex-col justify-between relative overflow-hidden bg-black/40">
+                    
+                    {/* Microscopic metallic pins tracing the inner ring */}
+                    <div className="absolute inset-3 border border-white/[0.03] rounded-[28px] pointer-events-none" />
+                    
+                    {/* Dynamic Glowing border outline of the chip */}
+                    <div 
+                      className="absolute inset-0 border-2 rounded-[34px] transition-all duration-700 pointer-events-none"
+                      style={{ 
+                        borderColor: chipSpecs[selectedSpec].color,
+                        boxShadow: `inset 0 0 20px ${chipSpecs[selectedSpec].glowColor}, 0 0 15px ${chipSpecs[selectedSpec].glowColor}`,
+                        opacity: 0.65
+                      }}
+                    />
 
-                  {/* Golden top-left indicator box (Pin 1 Indicator) */}
-                  <div className="absolute top-4 left-4 w-3.5 h-3.5 border border-yellow-500/40 bg-yellow-500/10 rounded-[3px] flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/80" />
-                  </div>
-
-                  {/* Corner metallic trims */}
-                  <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-neutral-700" />
-                  <div className="absolute bottom-4 left-4 w-2 h-2 border-b border-l border-neutral-700" />
-                  <div className="absolute bottom-4 right-4 w-2 h-2 border-b border-r border-neutral-700" />
-
-                  {/* Monospace Labels */}
-                  <div className="flex justify-between items-start pt-2 px-1">
-                    <span className="text-[9px] font-mono font-semibold tracking-wider text-neutral-500">LUMEN-N26</span>
-                    <span className="text-[9px] font-mono font-semibold tracking-wider text-neutral-500">2026.06</span>
-                  </div>
-
-                  {/* Centered Targeting Box & Icon */}
-                  <div className="flex-1 flex items-center justify-center my-4">
-                    <div className="relative p-6 border border-blue-500/30 rounded-2xl bg-blue-500/5 shadow-[0_0_40px_rgba(59,130,246,0.15)] group hover:border-blue-400/50 hover:bg-blue-500/10 transition-all duration-500">
-                      {/* Corner targeting brackets */}
-                      <div className="absolute top-0 left-0 w-3.5 h-3.5 border-t-2 border-l-2 border-blue-500 rounded-tl-md" />
-                      <div className="absolute top-0 right-0 w-3.5 h-3.5 border-t-2 border-r-2 border-blue-500 rounded-tr-md" />
-                      <div className="absolute bottom-0 left-0 w-3.5 h-3.5 border-b-2 border-l-2 border-blue-500 rounded-bl-md" />
-                      <div className="absolute bottom-0 right-0 w-3.5 h-3.5 border-b-2 border-r-2 border-blue-500 rounded-br-md" />
-                      
-                      {/* Central glowing CPU icon */}
-                      <Cpu className="w-12 h-12 text-blue-500 animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                    {/* Thin inner quad divisions for CPU/GPU/NPU/Memory */}
+                    <div className="absolute inset-4 grid grid-cols-2 grid-rows-2 opacity-20 pointer-events-none">
+                      <div className="border-r border-b border-white/[0.15]" />
+                      <div className="border-b border-white/[0.15]" />
+                      <div className="border-r border-white/[0.15]" />
+                      <div className="border-white/[0.15]" />
                     </div>
-                  </div>
 
-                  {/* Bottom Monospace Labels */}
-                  <div className="flex justify-between items-end pb-1 px-1">
-                    <span className="text-[9px] font-mono font-semibold tracking-wider text-neutral-500">DIFFUSED IN USA</span>
-                    <span className="text-[9px] font-mono font-semibold tracking-wider text-neutral-500">REV 4.2</span>
-                  </div>
+                    {/* Top-Left: CPU */}
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); setSelectedSpec('cpu'); }}
+                      className={`absolute top-4 left-4 w-[calc(50%-16px)] h-[calc(50%-16px)] rounded-tl-[18px] transition-all duration-500 cursor-pointer flex items-start p-3 ${
+                        selectedSpec === 'cpu' ? 'bg-blue-500/[0.06] border-t border-l border-blue-400/30' : 'hover:bg-white/[0.01]'
+                      }`}
+                    >
+                      <span className={`text-[8px] font-mono font-bold tracking-wider transition-colors duration-300 ${selectedSpec === 'cpu' ? 'text-blue-400' : 'text-neutral-600'}`}>CPU</span>
+                    </div>
 
+                    {/* Top-Right: GPU */}
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); setSelectedSpec('gpu'); }}
+                      className={`absolute top-4 right-4 w-[calc(50%-16px)] h-[calc(50%-16px)] rounded-tr-[18px] transition-all duration-500 cursor-pointer flex items-start justify-end p-3 ${
+                        selectedSpec === 'gpu' ? 'bg-sky-500/[0.06] border-t border-r border-sky-400/30' : 'hover:bg-white/[0.01]'
+                      }`}
+                    >
+                      <span className={`text-[8px] font-mono font-bold tracking-wider transition-colors duration-300 ${selectedSpec === 'gpu' ? 'text-sky-400' : 'text-neutral-600'}`}>GPU</span>
+                    </div>
+
+                    {/* Bottom-Left: Neural */}
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); setSelectedSpec('neural'); }}
+                      className={`absolute bottom-4 left-4 w-[calc(50%-16px)] h-[calc(50%-16px)] rounded-bl-[18px] transition-all duration-500 cursor-pointer flex items-end p-3 ${
+                        selectedSpec === 'neural' ? 'bg-purple-500/[0.06] border-b border-l border-purple-400/30' : 'hover:bg-white/[0.01]'
+                      }`}
+                    >
+                      <span className={`text-[8px] font-mono font-bold tracking-wider transition-colors duration-300 ${selectedSpec === 'neural' ? 'text-purple-400' : 'text-neutral-600'}`}>NPU</span>
+                    </div>
+
+                    {/* Bottom-Right: Memory */}
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); setSelectedSpec('memory'); }}
+                      className={`absolute bottom-4 right-4 w-[calc(50%-16px)] h-[calc(50%-16px)] rounded-br-[18px] transition-all duration-500 cursor-pointer flex items-end justify-end p-3 ${
+                        selectedSpec === 'memory' ? 'bg-emerald-500/[0.06] border-b border-r border-emerald-400/30' : 'hover:bg-white/[0.01]'
+                      }`}
+                    >
+                      <span className={`text-[8px] font-mono font-bold tracking-wider transition-colors duration-300 ${selectedSpec === 'memory' ? 'text-emerald-400' : 'text-neutral-600'}`}>MEM</span>
+                    </div>
+
+                    {/* Central Cohesive Chip Cap */}
+                    <div className="absolute inset-10 bg-gradient-to-b from-[#1C1C1E] to-[#0A0A0C] border border-neutral-800 rounded-2xl flex flex-col items-center justify-center shadow-xl pointer-events-none">
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <div className="relative w-8 h-8 flex items-center justify-center mb-0.5">
+                          <motion.div 
+                            className="absolute inset-0 border border-white/15 rounded-full" 
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+                          />
+                          <motion.div 
+                            className="absolute inset-1 border border-dashed rounded-full"
+                            style={{ borderColor: chipSpecs[selectedSpec].color, opacity: 0.5 }}
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                          />
+                          <Cpu className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-2xl font-display font-extrabold tracking-tight text-white leading-none">
+                          Lumen
+                        </span>
+                        <span className="text-[7.5px] font-sans font-bold tracking-[0.35em] text-neutral-400 uppercase mt-0.5">
+                          SYSTEM
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
               </motion.div>
+
+              {/* Apple-style Interactive Specs Under the Chip */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="mt-4 flex flex-col items-center space-y-3.5 text-center w-full"
+              >
+                {(['cpu', 'gpu', 'memory', 'neural'] as const).map((key) => {
+                  const spec = chipSpecs[key];
+                  const isSelected = selectedSpec === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedSpec(key)}
+                      className="group relative flex flex-col items-center transition-all duration-300"
+                    >
+                      <span 
+                        className={`text-base sm:text-lg font-sans font-extrabold tracking-tight transition-all duration-300 ${
+                          isSelected 
+                            ? `bg-gradient-to-r ${spec.gradClass} bg-clip-text text-transparent scale-[1.05]` 
+                            : 'text-neutral-500 hover:text-neutral-300'
+                        }`}
+                      >
+                        {spec.specText}
+                      </span>
+                      {isSelected && (
+                        <motion.div 
+                          layoutId="activeDot" 
+                          className="w-1 h-1 rounded-full mt-1" 
+                          style={{ backgroundColor: spec.color }}
+                          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </motion.div>
+
+              {/* Specification Detail Card */}
+              <div className="w-full max-w-[340px] mt-6 min-h-[50px] flex items-center justify-center text-center">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={selectedSpec}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xs text-neutral-400 font-sans leading-relaxed"
+                  >
+                    <strong style={{ color: chipSpecs[selectedSpec].color }}>{chipSpecs[selectedSpec].title}</strong>: {chipSpecs[selectedSpec].desc}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
 
               {/* Control Action Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, delay: 0.32 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center mt-4 w-full"
+                className="flex flex-col sm:flex-row gap-4 justify-center mt-8 w-full"
               >
                 <button
                   onClick={() => setViewMode('reveal')}
@@ -273,7 +418,7 @@ export default function LumenCoreScene() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.85, delay: 0.48 }}
-                className="mt-8 text-xs text-[#86868B]"
+                className="mt-6 text-xs text-[#86868B]"
               >
                 Concept interface for presentation purposes. Live product demo shown later.
               </motion.p>

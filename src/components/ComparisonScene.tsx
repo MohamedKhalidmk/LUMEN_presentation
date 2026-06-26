@@ -126,9 +126,9 @@ export default function ComparisonScene() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-[#424245] text-sm md:text-base font-light leading-relaxed font-sans"
+            className="text-xs font-mono text-[#86868B] uppercase tracking-tight"
           >
-            A comparison of digital health utilities in the Egyptian market. While directories and hotlines are useful for logistics, MediLink introduces a self-contained, medically grounded clinical pathway.
+            Comparing Egypt's digital health utilities against self-contained clinical pathways.
           </motion.p>
         </div>
 
@@ -171,16 +171,20 @@ export default function ComparisonScene() {
         </div>
 
         {/* Crisp High-Contrast Feature matrix */}
-        <div className="bg-[#FAF9FB] border border-[#D2D2D7]/40 rounded-3xl overflow-hidden shadow-lg">
+        <div className="bg-white border-2 border-neutral-300 rounded-3xl overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr className="border-b border-[#D2D2D7]/40 bg-[#F5F5F7]">
-                  <th className="p-6 text-[10px] font-mono text-[#424245] uppercase tracking-widest font-bold">Clinical Capabilities</th>
-                  <th className="p-6 text-center text-xs font-mono text-[#86868B]">Vezeeta</th>
-                  <th className="p-6 text-center text-xs font-mono text-[#86868B]">Altibbi</th>
-                  <th className="p-6 text-center text-xs font-mono text-[#86868B]">WebTeb</th>
-                  <th className="p-6 text-center text-xs font-mono text-[#0071E3] font-bold">MediLink Platform</th>
+                <tr className="border-b-2 border-neutral-300 bg-neutral-100/90">
+                  <th className="p-6 text-xs font-mono text-neutral-800 uppercase tracking-widest font-extrabold">Clinical Capabilities</th>
+                  <th className="p-6 text-center text-xs sm:text-sm font-sans font-bold text-neutral-800">Vezeeta</th>
+                  <th className="p-6 text-center text-xs sm:text-sm font-sans font-bold text-neutral-800">Altibbi</th>
+                  <th className="p-6 text-center text-xs sm:text-sm font-sans font-bold text-neutral-800">WebTeb</th>
+                  <th className="p-6 text-center">
+                    <span className="text-xs sm:text-sm font-sans font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full inline-block border border-emerald-200">
+                      MediLink Platform
+                    </span>
+                  </th>
                 </tr>
               </thead>
               
@@ -189,15 +193,15 @@ export default function ComparisonScene() {
                   <tr 
                     key={fIdx} 
                     onClick={() => setSelectedFeature(selectedFeature === fIdx ? null : fIdx)}
-                    className="border-b border-[#D2D2D7]/20 hover:bg-white transition-all cursor-pointer"
+                    className="border-b border-neutral-200/90 hover:bg-neutral-50/70 transition-all cursor-pointer"
                   >
                     {/* Feature description column with Category Pill */}
                     <td className="p-5 md:p-6 w-[40%]">
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-mono text-neutral-400 tracking-wider uppercase font-bold mb-1">{feat.category}</span>
+                        <span className="text-[10px] font-mono text-neutral-500 tracking-wider uppercase font-bold mb-1">{feat.category}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] md:text-sm text-[#1D1D1F] font-semibold">{feat.name}</span>
-                          <Info className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                          <span className="text-[14px] md:text-base text-neutral-900 font-bold">{feat.name}</span>
+                          <Info className="w-4 h-4 text-neutral-400 shrink-0" />
                         </div>
                         
                         {/* Interactive Accordion detail */}
@@ -207,7 +211,7 @@ export default function ComparisonScene() {
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="text-xs text-[#6E6E73] mt-2 font-sans font-light leading-relaxed bg-white border border-neutral-100 p-3 rounded-lg overflow-hidden"
+                              className="text-xs text-[#424245] mt-2 font-sans font-normal leading-relaxed bg-neutral-50 border border-neutral-200 p-4 rounded-xl overflow-hidden shadow-inner"
                             >
                               {feat.details}
                             </motion.p>
@@ -220,9 +224,9 @@ export default function ComparisonScene() {
                     <td className="p-6 text-center">
                       <div className="flex justify-center">
                         {feat.vezeeta ? (
-                          <Check className="w-5 h-5 text-neutral-500 bg-neutral-100 p-1 rounded-full" strokeWidth={2.5} />
+                          <Check className="w-5 h-5 text-emerald-600 bg-emerald-50 border-2 border-emerald-200 p-1 rounded-full" strokeWidth={3} />
                         ) : (
-                          <X className="w-4 h-4 text-neutral-300" strokeWidth={2} />
+                          <X className="w-5 h-5 text-red-600 bg-red-50 border-2 border-red-200 p-1 rounded-full" strokeWidth={3} />
                         )}
                       </div>
                     </td>
@@ -231,9 +235,9 @@ export default function ComparisonScene() {
                     <td className="p-6 text-center">
                       <div className="flex justify-center">
                         {feat.altibbi ? (
-                          <Check className="w-5 h-5 text-neutral-500 bg-neutral-100 p-1 rounded-full" strokeWidth={2.5} />
+                          <Check className="w-5 h-5 text-emerald-600 bg-emerald-50 border-2 border-emerald-200 p-1 rounded-full" strokeWidth={3} />
                         ) : (
-                          <X className="w-4 h-4 text-neutral-300" strokeWidth={2} />
+                          <X className="w-5 h-5 text-red-600 bg-red-50 border-2 border-red-200 p-1 rounded-full" strokeWidth={3} />
                         )}
                       </div>
                     </td>
@@ -242,26 +246,26 @@ export default function ComparisonScene() {
                     <td className="p-6 text-center">
                       <div className="flex justify-center">
                         {feat.webteb ? (
-                          <Check className="w-5 h-5 text-neutral-500 bg-neutral-100 p-1 rounded-full" strokeWidth={2.5} />
+                          <Check className="w-5 h-5 text-emerald-600 bg-emerald-50 border-2 border-emerald-200 p-1 rounded-full" strokeWidth={3} />
                         ) : (
-                          <X className="w-4 h-4 text-neutral-300" strokeWidth={2} />
+                          <X className="w-5 h-5 text-red-600 bg-red-50 border-2 border-red-200 p-1 rounded-full" strokeWidth={3} />
                         )}
                       </div>
                     </td>
 
                     {/* MediLink check */}
-                    <td className="p-6 text-center bg-[#0071E3]/5">
+                    <td className="p-6 text-center bg-emerald-50/20 border-l border-r border-emerald-100">
                       <div className="flex justify-center">
                         {feat.medilink ? (
                           <motion.div 
                             initial={{ scale: 0.8 }}
                             whileInView={{ scale: 1 }}
-                            className="w-8 h-8 rounded-full bg-[#0071E3] flex items-center justify-center text-white border-2 border-white shadow-md"
+                            className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white border-2 border-white shadow-lg"
                           >
-                            <Check className="w-4 h-4" strokeWidth={3} />
+                            <Check className="w-5 h-5" strokeWidth={3} />
                           </motion.div>
                         ) : (
-                          <X className="w-4 h-4 text-red-500" strokeWidth={2} />
+                          <X className="w-5 h-5 text-red-600 bg-red-50 border-2 border-red-200 p-1 rounded-full" strokeWidth={3} />
                         )}
                       </div>
                     </td>
@@ -270,8 +274,8 @@ export default function ComparisonScene() {
               </tbody>
             </table>
           </div>
-          <div className="bg-[#F5F5F7] p-4 text-center border-t border-[#D2D2D7]/40 text-[10px] font-mono text-[#6E6E73] flex justify-center items-center gap-1.5 leading-relaxed">
-            <span>Click any individual capability row to inspect detailed specifications & clinical utility.</span>
+          <div className="py-3 text-center border-t border-neutral-200 text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
+            Click any capability row to expand specifications
           </div>
         </div>
       </div>

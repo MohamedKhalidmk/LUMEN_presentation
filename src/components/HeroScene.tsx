@@ -41,10 +41,8 @@ export default function HeroScene({ onStartTour }: HeroSceneProps) {
             One connected layer for care.
           </h2>
 
-          <p className="text-base sm:text-lg text-[#6E6E73] leading-relaxed font-sans font-light">
-            MediLink brings guidance, booking, records, and care coordination into one patient experience. 
-            Unlike disjointed clinics and directory apps, we build a seamless, unified loop. 
-            Click <strong className="text-[#0071E3] font-medium">Find & Book</strong> on the phone mockup to explore doctor scheduling.
+          <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
+            Unifying symptom triage, computer vision tracing, and specialist booking.
           </p>
 
           <div className="pt-4 flex flex-wrap gap-4 items-center">

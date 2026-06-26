@@ -145,8 +145,8 @@ export default function AutoRecDetailScene() {
             Hello, <span className={`font-semibold bg-gradient-to-r ${currentStyles.gradient} bg-clip-text text-transparent transition-all duration-700`}>AutoRec.</span>
           </h2>
 
-          <p className="text-base sm:text-lg text-[#86868B] max-w-2xl mx-auto leading-relaxed font-sans">
-            Deep neural matchmaking that projects symptoms into personalized treatment plans. Seamless. Predictive. Absolute.
+          <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
+            Deep neural matchmaking projecting symptoms to treatment plans.
           </p>
 
           <div className="pt-2 flex justify-center">

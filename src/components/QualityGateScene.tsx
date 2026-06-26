@@ -47,31 +47,13 @@ export default function QualityGateScene() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="text-[#424245] text-sm leading-relaxed font-sans font-light"
+                className="text-[#424245] text-xs font-mono uppercase tracking-tight"
               >
-                Retrieval nodes and vision models can occasionally generate auxiliary telemetry, memory metrics, or ungrounded comments. To seal the genAI synthesizers from hallucinations, all pipeline payloads pass through a deterministic validation gate before reaching Claude.
+                Filters ungrounded telemetry datasets before reaching synthesizers.
               </motion.p>
             </div>
 
-            {/* Structured validation rule cards */}
-            <div className="bg-[#F5F5F7] p-6 rounded-2xl border border-[#D2D2D7]/40 space-y-4">
-              <span className="text-[9px] font-mono text-[#86868B] uppercase tracking-widest font-bold block">SAFETY REJECTION LAWS</span>
-              
-              <div className="space-y-3 text-xs text-[#424245]">
-                <div className="flex gap-2.5 items-start">
-                  <span className="text-[#0071E3] font-bold">•</span>
-                  <span><strong>Embeddings Filter:</strong> Strip all items scoring under 0.70 cosine similarity.</span>
-                </div>
-                <div className="flex gap-2.5 items-start">
-                  <span className="text-[#0071E3] font-bold">•</span>
-                  <span><strong>Format Cleanse:</strong> Purge raw GPU memory registries and nested coordinates.</span>
-                </div>
-                <div className="flex gap-2.5 items-start">
-                  <span className="text-[#0071E3] font-bold">•</span>
-                  <span><strong>Anonymizer Layer:</strong> Scrub names, IP records, or identifiers (HIPAA compliant).</span>
-                </div>
-              </div>
-            </div>
+
           </div>
 
           {/* Right Column: Visual safety checkpoint sandbox */}

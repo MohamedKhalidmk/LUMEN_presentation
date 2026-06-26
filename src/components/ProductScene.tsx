@@ -130,9 +130,8 @@ export default function ProductScene() {
             One record, one journey. <br />
             <span className="text-neutral-500 font-light">Every interaction becomes context.</span>
           </h2>
-          <p className="text-[#6E6E73] text-sm md:text-base font-light leading-relaxed font-sans">
-            MediLink organizes symptoms, appointments, reports, prescriptions, doctor notes, and follow-ups into a single, cohesive, end-to-end patient timeline. 
-            No lost clinical files, no disconnected specialist silos—just one secure continuous care record.
+          <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
+            Unifying symptoms, appointments, diagnostics, and prescriptions in a single secure timeline.
           </p>
         </div>
 

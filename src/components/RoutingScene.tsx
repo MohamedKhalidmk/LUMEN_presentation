@@ -363,8 +363,8 @@ export default function RoutingScene() {
         <h2 className="text-3xl font-light tracking-tight text-neutral-800 mt-3 font-sans">
           Inlet Routing Gateway
         </h2>
-        <p className="text-sm text-neutral-500 mt-2 max-w-xl mx-auto leading-relaxed font-light">
-          Experience our intelligent routing architecture. Click any node in the interactive diagram to configure options, inspect prompts, or dynamically redirect the patient path.
+        <p className="text-xs text-neutral-400 mt-2 max-w-lg mx-auto font-mono tracking-tight uppercase">
+          Interactive Diagram • Click any node to configure options or redirect paths.
         </p>
       </div>
 

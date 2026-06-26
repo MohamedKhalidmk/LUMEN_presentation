@@ -154,9 +154,9 @@ export default function ProblemScene() {
             A connected care network. <br />
             <span className="text-neutral-500 font-light">From symptoms to the right provider.</span>
           </h2>
-          <p className="text-neutral-400 text-sm md:text-base font-light leading-relaxed font-sans">
-            Patients, doctors, hospitals, and pharmacies should not operate in separate silos. 
-            MediLink links patient needs with localized clinical nodes, using our intelligent AutoRec recommendation logic to coordinate the entire journey in real time.
+          <p className="text-neutral-400 text-xs font-mono uppercase tracking-tight flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0" />
+            <span>Interactive Node Topology • Click nodes to visualize data flows.</span>
           </p>
         </div>
 
@@ -313,38 +313,25 @@ export default function ProblemScene() {
             </div>
 
             {/* Selected Node Details Box */}
-            <div className="w-full max-w-[390px] mt-4 min-h-[110px]">
+            <div className="w-full max-w-[390px] mt-4 text-center min-h-[24px] flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeNode}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-[#1C1D22] border border-white/5 p-4 rounded-2xl text-left shadow-lg"
+                  className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest"
                 >
                   {activeNode === 'medilink' ? (
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#0071E3] animate-ping" />
-                        <h4 className="text-xs font-mono font-bold text-[#0071E3] uppercase tracking-wider">MediLink Central Hub</h4>
-                      </div>
-                      <p className="text-[11.5px] text-neutral-300 font-sans leading-relaxed">
-                        Orchestrates the entire care cycle. Dynamic data routing links patients with doctor clinics, regional hospitals, and physical pharmacy counters cumulatively as they join the treatment thread.
-                      </p>
-                    </div>
+                    <span className="text-neutral-500">MediLink Hub • Active handshakes: {connectedNodes.filter(n => n !== 'medilink').length}</span>
                   ) : (
-                    <div>
-                      <h4 className="text-xs font-mono font-bold text-neutral-300 uppercase mb-1 tracking-wider">
-                        {nodes.find(n => n.id === activeNode)?.title || activeNode} {connectedNodes.includes(activeNode) && '✓ Connected'}
-                      </h4>
-                      <p className="text-[11.5px] text-neutral-300 font-sans leading-relaxed mb-1">
-                        {nodes.find(n => n.id === activeNode)?.details}
-                      </p>
-                      <span className="text-[8px] font-mono text-[#0071E3] font-bold uppercase">
-                        {connectedNodes.includes(activeNode) ? 'Active continuous channel' : 'Click node to establish live link'}
+                    <span>
+                      {nodes.find(n => n.id === activeNode)?.title} •{' '}
+                      <span className={connectedNodes.includes(activeNode) ? 'text-blue-400' : 'text-neutral-600'}>
+                        {connectedNodes.includes(activeNode) ? 'Connected' : 'Click node to link'}
                       </span>
-                    </div>
+                    </span>
                   )}
                 </motion.div>
               </AnimatePresence>
@@ -510,10 +497,10 @@ export default function ProblemScene() {
               </div>
 
               {/* Explanatory summary card */}
-              <div className="mt-5 p-4 border border-[#0071E3]/25 bg-[#0071E3]/5 rounded-2xl flex items-start gap-2.5">
-                <div className="w-2 h-2 bg-[#0071E3] rounded-full mt-1.5 shrink-0 animate-pulse" />
-                <p className="text-[10px] text-neutral-400 leading-relaxed font-sans">
-                  <strong>Why AutoRec is the intelligence layer:</strong> Instead of simple static directories, AutoRec weights proximity, symptom specialization indexes, history, and real-time open slots to rank doctors, recommending Dr. Yousry Mansour at the peak.
+              <div className="mt-5 p-3.5 border border-[#0071E3]/25 bg-[#0071E3]/5 rounded-2xl flex items-center gap-2.5">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 animate-pulse" />
+                <p className="text-[10.5px] text-neutral-300 font-sans">
+                  <strong>AutoRec Live Weights:</strong> Geolocation, specialty score, and clinical affinity are calculated dynamically.
                 </p>
               </div>
 

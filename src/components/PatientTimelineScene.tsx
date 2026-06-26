@@ -106,9 +106,8 @@ export default function PatientTimelineScene() {
             One record, one journey. <br />
             <span className="text-neutral-500">Every interaction becomes context.</span>
           </h2>
-          <p className="text-neutral-400 text-sm md:text-base font-light leading-relaxed font-sans">
-            MediLink organizes symptoms, image scans, appointments, reports, and follow-ups into a single, cohesive, end-to-end patient timeline. 
-            No lost PDF files, no disconnected specialists—just a single continuous care record.
+          <p className="text-xs font-mono text-neutral-500 uppercase tracking-tight">
+            Organizing symptoms, image scans, and specialist assessments into a single record.
           </p>
         </div>
 
