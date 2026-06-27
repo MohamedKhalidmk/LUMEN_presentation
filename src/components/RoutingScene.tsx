@@ -382,7 +382,7 @@ export default function RoutingScene() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-500">
-                Active Scenario: <span className="font-bold text-neutral-800">{activeScenario.name}</span>
+                Operational Payload: <span className="font-bold text-neutral-800">{activeScenario.name}</span>
               </span>
             </div>
             <div className="text-[10px] text-neutral-400 font-mono">

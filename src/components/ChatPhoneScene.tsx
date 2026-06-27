@@ -112,11 +112,11 @@ export default function ChatPhoneScene() {
               >
                 <div className="inline-flex items-center gap-2 bg-[#E8E8ED] border border-[#D2D2D7]/50 px-4 py-1.5 rounded-full text-[10px] font-mono tracking-widest text-[#1D1D1F] font-bold uppercase shadow-2xs self-start">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  <span>UNLOCK CHAT</span>
+                  <span>SECURE ADVISORY CHANNEL</span>
                 </div>
 
-                <h2 className="text-5xl sm:text-7xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.05]">
-                  Medi AI Chat. <br />
+                 <h2 className="text-5xl sm:text-7xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.05]">
+                  Clinical Advisory. <br />
                   <span className="text-neutral-500 font-normal">Continuous context.</span>
                 </h2>
 
@@ -130,7 +130,7 @@ export default function ChatPhoneScene() {
                     className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 font-semibold rounded-full text-white tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm shadow-md cursor-pointer font-sans"
                     id="cta-launch-chat"
                   >
-                    <span>Launch Medi AI Chat</span>
+                    <span>Launch Advisory Channel</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
@@ -165,12 +165,12 @@ export default function ChatPhoneScene() {
                 </div>
 
                 <h2 className="text-5xl sm:text-7xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.05]">
-                  Medi AI Agent. <br />
+                  Clinical Booking. <br />
                   <span className="text-emerald-600 font-normal">Active Booking.</span>
                 </h2>
 
                 <p className="text-base sm:text-lg text-[#6E6E73] leading-relaxed font-sans font-light">
-                  See the AI Agent in action. Choose "Interactive Patient View" to trigger the booking flow manually, or "Behind the Scenes" to watch the automated browser automation sequence.
+                  See the automated scheduling system in action. Choose "Interactive Patient View" to trigger the booking flow manually, or "Behind the Scenes" to watch the automated browser automation sequence.
                 </p>
 
                 {/* Toggle Pills - Choose Patient Interactive view vs Behind the Scenes Animation */}

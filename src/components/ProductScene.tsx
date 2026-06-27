@@ -122,17 +122,10 @@ export default function ProductScene() {
       <div className="max-w-6xl w-full mx-auto relative z-10">
         
         {/* Title Block */}
-        <div className="text-left mb-16 max-w-3xl">
-          <span className="text-[10px] font-mono text-neutral-500 tracking-[0.25em] uppercase font-bold block mb-3">
+        <div className="text-left mb-8 max-w-3xl">
+          <span className="text-[10px] font-mono text-neutral-500 tracking-[0.25em] uppercase font-bold block">
             MEDICAL RECORDS DOSSIER
           </span>
-          <h2 className="text-4xl md:text-6xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.1] mb-6">
-            One record, one journey. <br />
-            <span className="text-neutral-500 font-light">Every interaction becomes context.</span>
-          </h2>
-          <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
-            Unifying symptoms, appointments, diagnostics, and prescriptions in a single secure timeline.
-          </p>
         </div>
 
         {/* Dynamic Timeline Grid */}

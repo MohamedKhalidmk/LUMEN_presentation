@@ -31,7 +31,7 @@ export default function RecordsPhoneScene() {
         <div className="text-left max-w-xl flex-1 flex flex-col justify-center space-y-6">
           <div className="inline-flex items-center gap-2 bg-[#E8E8ED] border border-[#D2D2D7]/50 px-4 py-1.5 rounded-full text-[10px] font-mono tracking-widest text-[#1D1D1F] font-bold uppercase shadow-2xs">
             <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
-            <span>UNLOCK RECORDS</span>
+            <span>SECURE HEALTH DOSSIER</span>
           </div>
 
           <h2 className="text-5xl sm:text-7xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.05]">
@@ -144,13 +144,13 @@ export default function RecordsPhoneScene() {
                           </span>
                         </button>
 
-                        {/* Locked placeholder - Medi AI Chat */}
+                        {/* Locked placeholder - Clinical Advisory Desk */}
                         <div className="w-full p-3.5 bg-[#F5F5F7]/30 border border-neutral-200/40 rounded-2xl text-left flex items-center gap-3.5 opacity-40">
                           <div className="p-2.5 rounded-xl bg-neutral-200 text-neutral-400">
                             <Lock className="w-4 h-4" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-semibold text-neutral-400 truncate">Medi AI Chat</h4>
+                            <h4 className="text-xs font-semibold text-neutral-400 truncate">Clinical Advisory Desk</h4>
                             <p className="text-[10px] text-neutral-300 truncate">Locked • Unlock in Stage 3</p>
                           </div>
                         </div>

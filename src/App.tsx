@@ -23,6 +23,7 @@ import RoutingScene from './components/RoutingScene';
 import QualityGateScene from './components/QualityGateScene';
 import PatientExampleScene from './components/PatientExampleScene';
 import DeploymentScene from './components/DeploymentScene';
+import ScreenMirrorScene from './components/ScreenMirrorScene';
 
 const ALL_CHAPTERS = [
   { id: 'hero', name: 'Meet MediLink', title: 'MediLink Reveal' },
@@ -30,7 +31,7 @@ const ALL_CHAPTERS = [
   { id: 'autorec_detail', name: 'AutoRec Engine', title: 'AutoRec Deep Dive' },
   { id: 'records_intro', name: 'Dossier Unlocked', title: 'Dossier Unlock' },
   { id: 'product', name: 'Patient Records', title: 'Medical Records' },
-  { id: 'chat_intro', name: 'AI Chat Unlocked', title: 'AI Chat Unlock' },
+  { id: 'chat_intro', name: 'Advisory Unlocked', title: 'Advisory Unlock' },
   { id: 'bts_workflow', name: 'Behind the Scenes', title: 'Behind the Scenes' },
   { id: 'core', name: 'Lumen System', title: 'Lumen System' },
   { id: 'routing', name: 'Router', title: 'Routing Gateway' },
@@ -41,7 +42,8 @@ const ALL_CHAPTERS = [
   { id: 'rag', name: 'Evidence Vault', title: 'Biomedical RAG' },
   { id: 'example', name: 'Case Study', title: 'Patient Example' },
   { id: 'deployment', name: 'Cloud EC2', title: 'Cloud Deploy' },
-  { id: 'comparison', name: 'Platform Delta', title: 'Comparison' }
+  { id: 'comparison', name: 'Platform Delta', title: 'Comparison' },
+  { id: 'screen_mirror', name: 'Screen Cast', title: 'Device Mirror' }
 ];
 
 const TOUR_STEPS = [
@@ -72,8 +74,8 @@ const TOUR_STEPS = [
   },
   {
     id: 'chat_intro',
-    title: 'Medi AI Chat Unlocked',
-    voiceText: 'With your treatment history logged securely, our intelligent Chat system has the perfect clinical context to guide recovery without repeating yourself.'
+    title: 'Clinical Advisory Portal',
+    voiceText: 'With your treatment history logged securely, our integrated advisory portal has the perfect clinical context to guide recovery without repeating yourself.'
   },
   {
     id: 'bts_workflow',
@@ -129,6 +131,11 @@ const TOUR_STEPS = [
     id: 'comparison',
     title: 'Platform comparatives',
     voiceText: 'Vezeeta, Altibbi, and WebTeb excel in specific pieces. Only MediLink unifies the care cycle, passing clinical case files seamlessly to physical physicians.'
+  },
+  {
+    id: 'screen_mirror',
+    title: 'Device Mirroring',
+    voiceText: 'Finally, explore dynamic device mirroring. You can simulate direct app interactions projected onto a doctor’s macOS console or establish an active WebRTC screen share to cast your phone live.'
   }
 ];
 
@@ -520,6 +527,10 @@ export default function App() {
 
         <div ref={el => { sectionRefs.current['comparison'] = el; }} id="comparison" className="scroll-mt-14">
           <ComparisonScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['screen_mirror'] = el; }} id="screen_mirror" className="scroll-mt-14">
+          <ScreenMirrorScene />
         </div>
       </main>
     </div>

@@ -166,6 +166,180 @@ export default function HTANExplainScene() {
           ))}
         </div>
 
+        {/* HTAN ARCHITECTURE DIAGRAM SECTION */}
+        <div className="bg-[#121318] text-white rounded-[2.5rem] border border-white/5 p-8 md:p-12 mb-20 shadow-2xl relative overflow-hidden text-left">
+          {/* Laser blue glow behind the diagram */}
+          <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[400px] bg-blue-500/10 rounded-full filter blur-[150px] pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[400px] bg-orange-500/10 rounded-full filter blur-[150px] pointer-events-none" />
+          
+          <div className="relative z-10 space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/10">
+              <div>
+                <span className="text-[9px] font-mono text-[#0071E3] tracking-[0.25em] uppercase font-bold block mb-2">HTAN STRUCTURAL DECONSTRUCTION</span>
+                <h3 className="text-2xl md:text-3xl font-display font-light text-white leading-tight">
+                  HTAN — Hyper-TransAttUNet with Manifold-Constrained Hyper-Connections
+                </h3>
+                <p className="text-xs text-neutral-400 font-mono mt-1.5 uppercase tracking-wide">
+                  Encoder-decoder backbone of TransAttUNet_R with mHC blocks at the two deepest encoder levels (x4, x5)
+                </p>
+              </div>
+              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-mono text-neutral-300 font-bold uppercase">Birkhoff Polytope Active</span>
+              </div>
+            </div>
+
+            {/* High fidelity CSS-based interactive diagram layout */}
+            <div className="overflow-x-auto py-6">
+              <div className="min-w-[980px] space-y-8">
+                
+                {/* The flow schematic */}
+                <div className="grid grid-cols-12 gap-4 items-center">
+                  
+                  {/* Step 1: Input Image */}
+                  <div className="col-span-2 bg-[#1C1D24] border border-white/10 p-4 rounded-2xl flex flex-col items-center justify-between h-[210px] relative">
+                    <div className="text-[9px] font-mono text-[#86868B] uppercase font-semibold">1. Input Image</div>
+                    {/* Visual box representing cell image with coordinate dots */}
+                    <div className="w-24 h-24 bg-black rounded-lg relative overflow-hidden border border-white/5 flex items-center justify-center my-3">
+                      <div className="w-12 h-10 bg-neutral-900 border border-neutral-700/50 rounded-[40%_60%_70%_30%_/_40%_50%_60%_50%]" />
+                      <div className="absolute top-6 left-8 w-2 h-2 rounded-full bg-white/40" />
+                      <div className="absolute bottom-6 right-8 w-1.5 h-1.5 rounded-full bg-white/30" />
+                    </div>
+                    <span className="text-[9px] font-mono text-[#A1A1A6] text-center">Dermoscopy Scan</span>
+                  </div>
+
+                  {/* Arrow 1 */}
+                  <div className="col-span-1 flex flex-col items-center justify-center text-neutral-600">
+                    <span className="text-[9px] font-mono uppercase font-bold text-neutral-500 mb-1">Max-pool</span>
+                    <div className="h-0.5 w-full bg-neutral-700 relative">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-4 border-l-4 border-y-transparent border-l-neutral-700" />
+                    </div>
+                  </div>
+
+                  {/* Step 2: Encoder Block */}
+                  <div className="col-span-2 bg-[#1C1D24] border border-white/10 p-4 rounded-2xl flex flex-col justify-between h-[210px]">
+                    <div className="text-[9px] font-mono text-[#86868B] uppercase font-semibold">2. Encoder Layers</div>
+                    <div className="space-y-1.5 my-auto">
+                      <div className="bg-neutral-800 border border-neutral-700 p-2 rounded-lg text-center font-mono text-[10px] text-neutral-200">
+                        Conv 3x3
+                      </div>
+                      <div className="bg-[#0071E3]/20 border border-[#0071E3]/30 p-2 rounded-lg text-center font-mono text-[10px] text-[#0071E3] font-bold">
+                        Norm.
+                      </div>
+                      <div className="bg-neutral-800 border border-neutral-700 p-2 rounded-lg text-center font-mono text-[10px] text-neutral-200">
+                        ReLU
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-mono text-[#A1A1A6] text-center">TransAttUNet_R Base</span>
+                  </div>
+
+                  {/* Arrow 2 */}
+                  <div className="col-span-1 flex flex-col items-center justify-center text-neutral-600">
+                    <span className="text-[9px] font-mono uppercase font-bold text-neutral-500 mb-1">Deep Levels</span>
+                    <div className="h-0.5 w-full bg-neutral-700 relative">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-4 border-l-4 border-y-transparent border-l-neutral-700" />
+                    </div>
+                  </div>
+
+                  {/* Step 3: mHC x4 Block */}
+                  <div className="col-span-2 bg-[#2D1B18] border border-[#FF9F0A]/30 p-4 rounded-2xl flex flex-col justify-between h-[210px] relative">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#FF9F0A] text-black font-mono text-[8px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                      mHC Block
+                    </div>
+                    <div className="text-[9px] font-mono text-[#FF9F0A] uppercase font-bold">3. mHC @ x4 Level</div>
+                    <div className="bg-black/40 border border-[#FF9F0A]/20 p-4 rounded-xl text-center space-y-2 my-auto">
+                      <div className="text-xs font-semibold text-white font-display">n Streams</div>
+                      <div className="text-[10px] font-mono text-[#FF9F0A]">SAA(512) Feature Gates</div>
+                    </div>
+                    <span className="text-[9px] font-mono text-orange-300 text-center">Birkhoff Polytope Base</span>
+                  </div>
+
+                  {/* Arrow 3 */}
+                  <div className="col-span-1 flex flex-col items-center justify-center text-neutral-600">
+                    <span className="text-[9px] font-mono uppercase font-bold text-[#FF9F0A] mb-1">mHC Stream</span>
+                    <div className="h-0.5 w-full bg-[#FF9F0A]/60 relative">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 border-y-4 border-l-4 border-y-transparent border-l-[#FF9F0A]" />
+                    </div>
+                  </div>
+
+                  {/* Step 4: mHC x5 (Bottleneck) Inset */}
+                  <div className="col-span-3 bg-[#1C1D24] border border-[#0071E3]/40 p-4 rounded-2xl flex flex-col justify-between h-[210px] relative">
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-[#0071E3] text-white font-mono text-[8px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                      Bottleneck mHC @ x5
+                    </div>
+                    <div className="text-[9px] font-mono text-[#0071E3] uppercase font-bold">4. Bottleneck</div>
+                    <div className="space-y-1.5 my-auto">
+                      <div className="bg-neutral-800/80 border border-neutral-700/60 p-2 rounded-lg flex justify-between items-center text-[10px]">
+                        <span className="font-semibold text-white">TSA (SDPA)</span>
+                        <span className="text-[#FF9F0A] font-mono text-[9px]">Position Encoding</span>
+                      </div>
+                      <div className="bg-neutral-900 border border-[#FF9F0A]/30 p-2 rounded-lg flex justify-between items-center text-[10px]">
+                        <span className="font-bold text-[#FF9F0A]">Sinkhorn-Knopp</span>
+                        <span className="text-[9px] font-mono text-neutral-400">FP32 Birkhoff</span>
+                      </div>
+                      <div className="bg-neutral-800/80 border border-neutral-700/60 p-2 rounded-lg flex justify-between items-center text-[10px]">
+                        <span className="font-semibold text-white">GSA (PAM)</span>
+                        <span className="text-[9px] font-mono text-neutral-400 font-bold">Relevance Embed</span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-mono text-neutral-400 text-center">Sinkhorn-Constrained Residuals</span>
+                  </div>
+
+                </div>
+
+                {/* Legend & Details Panel */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-black/40 border border-white/5 rounded-2xl p-6">
+                  
+                  {/* Legend */}
+                  <div className="lg:col-span-4 space-y-3 border-r border-white/5 pr-6">
+                    <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-widest block font-bold">LEGEND SYMBOLS</span>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-2 bg-[#1C1D24] px-2.5 py-1.5 rounded-lg border border-white/5">
+                        <span className="w-5 h-5 bg-[#0071E3] rounded-full flex items-center justify-center font-bold text-[10px]">L</span>
+                        <span className="text-neutral-300 font-mono text-[10px]">Linear Proj</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-[#1C1D24] px-2.5 py-1.5 rounded-lg border border-white/5">
+                        <span className="w-5 h-5 bg-[#FF9F0A] text-black rounded-full flex items-center justify-center font-bold text-[10px]">x</span>
+                        <span className="text-neutral-300 font-mono text-[10px]">Multiplication</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-[#1C1D24] px-2.5 py-1.5 rounded-lg border border-white/5">
+                        <span className="w-5 h-5 bg-neutral-800 rounded-full flex items-center justify-center font-bold text-[10px]">+</span>
+                        <span className="text-neutral-300 font-mono text-[10px]">Addition</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-[#1C1D24] px-2.5 py-1.5 rounded-lg border border-white/5">
+                        <span className="w-5 h-5 bg-teal-600 rounded-full flex items-center justify-center font-bold text-[10px]">C</span>
+                        <span className="text-neutral-300 font-mono text-[10px]">Concatenation</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Text Explanations */}
+                  <div className="lg:col-span-8 space-y-3 pl-2">
+                    <span className="text-[9px] font-mono text-[#0071E3] uppercase tracking-widest block font-bold">MATHEMATICAL BOUNDARY CONSTRAINTS</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs leading-relaxed text-neutral-400">
+                      <div className="space-y-1">
+                        <span className="text-[#FF9F0A] font-mono text-[10px] font-bold block">Sinkhorn-Knopp Bottleneck Fix:</span>
+                        <p className="font-light">
+                          Our bottleneck applies dynamic Sinkhorn-Knopp iterations inside mHC levels. The math projects multi-scale residual streams onto a Birkhoff polytope in FP32, preventing spatial representation collapse under Automated Mixed Precision configurations.
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[#0071E3] font-mono text-[10px] font-bold block">Manifold-Constrained skip connections:</span>
+                        <p className="font-light">
+                          Parallel identity projection streams and SAA (Self-Attention-based Alignment) layers route global contextual tokens down to the decoder, achieving a Dice Coefficient of 90.32% on the ISIC-2018 benchmark.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
         {/* SECTION 3: Why Trust Cohere-style Testimonial Strip */}
         <div className="bg-[#111112] text-white rounded-[2rem] border border-white/5 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 mb-20 shadow-xl">
           {/* Testimonial text block */}

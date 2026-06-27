@@ -156,7 +156,7 @@ export default function ProblemScene() {
           </h2>
           <p className="text-neutral-400 text-xs font-mono uppercase tracking-tight flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0" />
-            <span>Interactive Node Topology • Click nodes to visualize data flows.</span>
+            <span>Interactive Node Topology • Select elements to inspect secure informatics routing.</span>
           </p>
         </div>
 
@@ -349,12 +349,12 @@ export default function ProblemScene() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-display text-base font-semibold text-[#F5F5F7]">
-                      AutoRec Recommendation Simulator
+                      Clinical Referral Matching Simulator
                     </h3>
-                    <span className="text-[8px] font-mono font-bold bg-[#0071E3] text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Intelligence Engine</span>
+                    <span className="text-[8px] font-mono font-bold bg-[#0071E3] text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Informatics Router</span>
                   </div>
                   <p className="text-xs text-neutral-400 font-sans mt-0.5">
-                    How Find & Book computes Dr. Yousry’s matching score.
+                    How the coordinator calculates provider suitability scores.
                   </p>
                 </div>
               </div>
