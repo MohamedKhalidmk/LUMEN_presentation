@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+khaled/
+Medilink_rag/
+node_modules/
+dist/
+.env

@@ -1,0 +1,1024 @@
+--- PAGE 1 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 1
+TransAttUnet: Multi-level Attention-guided U-Net
+with Transformer for Medical Image Segmentation
+Bingzhi Chen, Yishu Liu, Yingjian Li, Zheng Zhang, Senior Member, IEEE,
+Guangming Lu, Member, IEEE, and Adams Wai Kin Kong, Member, IEEE.
+Abstract—Accurate segmentation of organs or lesions from Skin lesion L u n g f i e l d P n e u monia
+medical images is crucial for reliable diagnosis of diseases and
+organ morphometry. In recent years, convolutional encoder-
+decoder solutions have achieved substantial progress in the field
+of automatic medical image segmentation. Due to the inherent
+bias in the convolution operations, prior models mainly focus
+on local visual cues formed by the neighboring pixels, but
+fail to fully model the long-range contextual dependencies. In
+this paper, we propose a novel Transformer-based Attention
+Guided Network called TransAttUnet1, in which the multi-level
+guided attention and multi-scale skip connection are designed to
+jointly enhance the performance of the semantical segmentation
+architecture. Inspired by Transformer, the self-aware attention
+(SAA) module with Transformer Self Attention (TSA) and Global
+Spatial Attention (GSA) is incorporated into TransAttUnet to ef-
+fectively learn the non-local interactions among encoder features.
+Moreover, we also use additional multi-scale skip connections
+between decoder blocks to aggregate the upsampled features with
+different semantic scales. In this way, the representation ability
+of multi-scale context information is strengthened to generate
+discriminative features. Benefitting from these complementary
+components, the proposed TransAttUnet can effectively alleviate
+the loss of fine details caused by the stacking of convolution layers
+and the consecutive sampling operations, finally improving the
+segmentation quality of medical images. Extensive experiments
+on multiple medical image segmentation datasets from differ-
+ent imaging modalities demonstrate that the proposed method
+consistently outperforms the state-of-the-art baselines.
+Index Terms—Medical Image Segmentation; Transformer;
+Multi-level Guided Attention; Multi-scale Skip Connection.
+I. INTRODUCTION
+I N clinical diagnosis, the purpose of medical image seg-
+mentation is to delineate the objects of interest from the
+complex background on various biomedical images [1]–[3],
+©©2022 IEEE. Personal use of this material is permitted. Permission
+from IEEE must be obtained for all other uses, in any current or future media,
+including reprinting/republishing this material for advertising or promotional
+purposes, creating new collective works, for resale or redistribution to servers
+or lists, or reuse of any copyrighted component of this work in other works.
+B. Chen is with the Shenzhen Medical Biometrics Perception and
+Analysis Engineering Laboratory, Harbin Institute of Technology, Shenzhen
+518055, China, and also with the School of Computer Science and En-
+gineering, Nanyang Technological University, Singapore 639798. (e-mail:
+chenbingzhi.smile@gmail.com)
+Y. Liu, Y. Li, Z. Zhang, and G. Lu are with the Shenzhen Medical
+Biometrics Perception and Analysis Engineering Laboratory, Harbin Institute
+of Technology, Shenzhen 518055, China. (e-mail: liuyishu.smile@gmail.com,
+hit lyj@126.com, darrenzz219@gmail.com, luguangm@hit.edu.cn)
+A. Kong is with the School of Computer Science and Engi-
+neering, Nanyang Technological University, Singapore, 639798. (e-mail:
+AdamsKong@ntu.edu.sg)
+1The preprint of our work has been posted at: https://doi.org/10.48550/
+arXiv.2107.05274. Our code and pre-trained models are available at: https:
+//github.com/YishuLiu/TransAttUnet
+segamI
+hturT
+dnuorG
+Nuclei GGllaanndd
+Fig. 1. Examples of medical images with the corresponding semantic
+segmentation annotations.
+such as X-ray, Computerized Tomography (CT), Magnetic
+Resonance Imaging (MRI), and Ultrasound. It is useful for
+quantitative diagnosis and morphological analysis of specific
+lesions in human organs and tissues. As shown in Fig. 1, it
+requires enormous effort and patience to handle the complex
+contours and textures. However, traditional manual annotation
+heavily relies on clinical experiences. Measurements based
+on clinicians’ manual annotations might be very accurate
+but highly labor-intensive under standard clinical settings.
+Therefore, it is in great demand to develop accurate medical
+image segmentation methods.
+In recent years, deep encoder-decoder architectures have
+proven to be effective in recovering details of the segmented
+objects and gradually become the industry’s facto benchmark
+for medical image segmentation. The main purpose of convo-
+lutional operations used in deep encoder-decoder architectures
+is to extract local features of images by gathering local
+information from the neighboring pixels. Typically, the stacks
+of convolution layers and the consecutive sampling operations
+constantly extend the receptive field and aggregate the global
+filter responses to determine the coarse object boundaries.
+Benefitting from deconvolution operations [4], Fully Convo-
+lutional Networks (FCN) [5] can naturally operate on images
+with various sizes and generate appropriate dimension outputs
+according to the corresponding inputs. Inspired by FCN, U-
+Net [6] directly combines low-level features from the analysis
+path and deep features in the expansion path through encoder-
+decoder skip connections, which can achieve the trade-off ca-
+pability between local information and contextual information.
+Despite the interesting design and encouraging performance,
+the above design limits the information flow due to the
+convolutional operations and becomes a bottleneck for per-
+formance enhancement. Specifically, these architectures have
+several drawbacks: (1) these architectures generally lack the
+2202
+luJ
+9
+]VI.ssee[
+2v47250.7012:viXra
+
+--- PAGE 2 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 2
+ability to model long-range feature dependencies due to the encoder semantic features. Motivated by the idea of residual
+inherent inductive biases [7] in the convolution computing and dense shortcut connections, a multi-scale skip connection
+paradigm; (2) the low-level features might be prevented from scheme is added into decoder sub-networks with a series
+being transmitted to the subsequent convolutional layers in the of transition operations, including upsampling, concatenation,
+process of pooling and convolution [8], which compromise and convolution. Thus, it can flexibly aggregate the residual or
+the quality of local information and degrade the semantic dense contextual feature maps from decoder blocks of varying
+segmentation performance; (3) the existing skip connection semantic scales step by step, in order to generate more discrim-
+mechanism is only performed on the same scale feature maps inative feature representations. With the contributions of these
+without exploring the relationship between feature maps from complementary components, the proposed method can achieve
+different decoding stages, which cannot guarantee the consis- accurate semantic segmentation masks of medical images. We
+tency of the feature representations and semantic embeddings evaluate the effectiveness of the proposed TransAttUnet on
+[9]. multiple medical image datasets from different imaging modal-
+To solve these issues, researchers have put considerable ities. Our experiments mainly involve five typical challenges in
+effort in developing various variants of U-Net. The exist- clinical diagnosis, including: (1) Skin lesion segmentation on
+ing works follow three research lines: (1) attention-guided dermatoscopic images [17]; (2) Lung segmentation on chest
+approaches; (2) context-based approaches; (3) Transformer- X-ray images; (3) COVID-19 pneumonia lesion segmentation
+based approaches. For example, prior attention-guided works, on chest CT images; (4) Nuclei segmentation on divergent
+e.g. Attention U-Net [10] and Channel-UNet [8], attempted images [18], and (5) Gland segmentation on histology images
+to leverage various attention mechanisms to optimize the [19]. Our main contributions are summarized as follows:
+spatial information of feature maps extracted from encoding, • This paper proposes a Transformer-Attention based U-
+decoding, and output stages. The main idea of these attention shaped framework (TransAttUnet), that integrates the
+mechanisms is to generate a confidence mask to recalibrate advantages of multi-level guided attention and multi-scale
+the response of the original feature maps. Different from the skip connections into the standard U-Net to improve
+above approaches, the second one is to explore the contextual segmentation performance for various medical images.
+information by using multi-scale connections. It is indisputable • With the co-cooperation of the transformer self attention
+that both high-level abstract information and low-level pixel and global spatial attention, our TransAttUnet can achieve
+information are of great significance in developing accurate the strong ability to model contextual semantic informa-
+segmentation. Therefore, varying degrees of context-based tion and global spatial relationships, which can guarantee
+shortcut connection components have been embedded into the the consistency of feature representations and semantic
+U-shaped architectures, such as Unet++ [9], and MA-Unet embeddings.
+[11], in order to capture broader and deeper contextual rep- • Compared with the one-step cascade connection, the
+resentations. Recently, Transformer [12] [13] is getting great proposed residual or dense step-growth connections not
+attention from computer vision (CV) researchers. Especially, only can reduce the disturbance of noise, but also enable
+some recent works, such as TransUNet [14] and MedT [15], the model to mitigate the loss of fine details caused by
+have tried to incorporate Transformer with CNN-based model directly upsampling with large scales.
+to boost the performance of medical image segmentation. In • Extensive experimental results on the five medical image
+general, Transformer-based approaches have very high compu- datasets demonstrate the superiorities and generalizability
+tation complexities to process feature maps, and often required of the proposed TransAttUnet for automatic medical
+models pretrained on a large external dataset. As the core image segmentation in comparison with state-of-the-art
+of Transformer, the multi-head mechanism [16] can capture baselines.
+the long-range contextual information by running through The rest of this paper is organized as follows. Section II
+the scaled dot-product attention multiple times in parallel. reviews some related works of automatic medical image
+Therefore, it is undoubtedly an ideal supplemental part that segmentation, and Section III describes the proposed TransAt-
+can efficiently compensate for the design flaws of U-Net. tUnet. Next, the comprehensive experiments and visualization
+Inspired by the aforementioned advanced works, in this analyses are reported in Section IV. Finally, Section V makes
+paper we propose a novel multi-level attention-guided U-Net a conclusion of this work.
+with Transformer, dubbed TransAttUnet, that can effectively
+enhance the segmentation accuracy of traditional U-shaped
+II. RELATED WORK
+architecture by jointly utilizing multi-level guided attention In this section, we make a brief overview of two related
+and multi-scale skip connection. The architecture of the pro- groups of works. The first group mainly involves the state-
+posed TransAttUnet is shown in Fig. 2. Specifically, a robust of-the-art variants of U-Net for automatic medical image seg-
+self-aware attention (SAA) module is first embedded into the mentation, while the second group introduces the applications
+proposed TransAttUnet as the bridge between the encoder and of Transformer used in computer vision.
+decoder subnetworks. As the key component of TransAttUnet,
+the purpose of the SAA module is to concurrently leverage A. Variants of U-Net
+the powerful abilities of transformer self attention (TSA) and Many efforts have been devoted to optimizing the structure
+global spatial attention (GSA) to establish effective long- of the U-Net in the field of automatic medical image segmenta-
+range interactions and global spatial relationships between tion. Typically, these variants can be roughly divided into two
+
+--- PAGE 3 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 3
+++++ cccc
+LLLL MMM LL
+EE
+L
+E
+ii
+ll
+i
+l
+uuu nn
+ee
+n
+emmm
+lll eee ttt aaa iii
+eee
+ppp rrr
+nnn
+lll PPP iii
+ttt
+ccc
+---
+rrr
+www
+aaa ooo ttt
+iii
+jjj iii
+sss
+eee ooo
+eee
+ccc nnn ttt
+AAA
+iiiooo
+ddd
+nnn
+dddiiitttiiiooonnn
+E P n o c s
++
+o it d io in n g Q
+K
+e c n
+a v e le R
+g n id
+d e b m E
+TSA UU
+SS
+MM
+kk
+pp aa
+ii
+ss
+pp
+xx aa
+--
+-- mm
+CC
+ppoo pp
+oo
+oo
+nn
+llii ll
+nn
+nn iinn
+ee
+gg gg
+ccttiioonn
+CCCooonnncccaaattteeennnaaatttiiiooonnn RReesshhaappee//PPeerrmmuuttee
+V
+... L + cc c ...
+CCoonnvv W
+Input Image Output Mask
+Encoder Decoder
+333xxx333 vvvnnn
+oooCCC
+mmm rrroooNNN ... UUU LLL eeeRRR
+CC
+CC
+oo
+oo
+nn
+nn
+vv
+vv
+M
+N
+e c n
+a v e le
+R
+g n id
+d e b m
+E
+GSA
+Mu
+B
+l
+i
+t
+l
+i
+i
+-
+n
+sc
+e
+a
+a
+l
+r
+e s
+U
+k
+p
+ip
+s a
+c
+m
+on
+p
+n
+l
+e
+i
+c
+n
+t
+g
+ion
+Fig. 2. Illustration of the proposed TransAttUnet for automatic medical image segmentation. (a) Both TSA and GSA mechanisms are embedding into the
+SAA module to model the long-range interactions and global spatial relationships. (b) The multi-scale skip connections between decoder blocks are designed
+to aggregate the downsampled features of varying semantic scales by progressive upsampling, concatenation, and convolution.
+categories, i.e., attention guided approaches and multi-scale scales with redesigned skip connections. U2-Net [25] exploits
+context approaches. Residual U-blocks to capture intra-stage contextual informa-
+1) Attention Guided Approaches: Many attention-guided tion and directly cascades the inter-block feature mapping of
+methods have been proposed to accurately segment the objects the decoder subnetwork to mitigate the loss of fine details.
+of interest in medical images of varying imaging modalities. MA-Unet [11] establishes a multi-scale mechanism to directly
+To enhance the feature learning ability of U-Net, Attention aggregating global contextual information of different scales
+U-Net [10] utilizes the attention gate (AG) to suppress ir- from intermediate layers as final feature representations, and
+relevant feature responses and highlight salient features, in it also utilizes additional attention mechanisms to improve the
+order to improve the model sensitivity and prediction accuracy. prediction accuracy for medical image segmentation. However,
+Channel-UNet [8] introduces the spatial channel convolution one-step cascade connection may ignore some valuable details
+to determine the optimal mapping relationship among spa- in the large-scale upsampling process, which still suffers from
+tial information from different patches. By simultaneously the challenge of information loss.
+recalibrating the different types of features at the spatial and
+channel levels, SCAU-Net [20] can guide the model to neglect B. Transformer in CV
+irrelevant information and focus on more discriminant regions 1) Transformer for Various Vision Tasks: With the devel-
+of the image. Similarly, 3D attention U-Net [21] applied the opment of Transformer used in various NLP tasks, more and
+channel and spatial attention into the decoder subnetwork more Transformer-based methods are developed for CV tasks.
+of 3D U-Net [22] to segment brain tumors in MRI images. In particular, ViT [26] presents a pure self-attention Vision
+XLSor [23] makes use of the criss-cross attention module Transformer for image recognition, which is the first attempt of
+to aggregate long-range pixel-wise contextual information in the transformer-based method to surpass the traditional CNN-
+both horizontal and vertical directions for lung segmentation based works. By introducing Transformer into CNNs, DETR
+in chest X-ray images. Residual Attention U-Net [24] applies [27] proposes a fully end-to-end object detector to eliminate
+the soft attention mechanism to improve the capability of the the hand-designed components in CNN-based object detectors.
+model to distinguish a variety of symptoms of the COVID- Subsequently, SETR [28] replaces the encoder in the standard
+19 in chest CT images. However, the direct application of FCN architecture with Transformer and achieves encouraging
+the attention mechanism might result in the loss of available performance on the natural image segmentation task.
+feature representations, especially when the judgment for the 2) Transformer for Medical Image Segmentation: In-
+region of interest goes wrong, which is inadequate to meet the spired by ViT, TransUNet [14] adopts Transformer as encoder
+needs of an ideal model. and applies it with U-Net to enhance the performance of
+2) Multi-Scale Context Approaches: To make full use medical image segmentation tasks. TransFuse [29] combines
+of the multi-scale context information, prior works have at- Transformer and CNN in a parallel style to improve efficiency
+tempted to combine the low-level features from the shal- for modeling global context information. Similarly, MCTrans
+low layers with the high-level feature of the deep layers [30] utilizes Transformer to incorporate rich context modeling
+for retaining the detailed image information. For example, and semantic relationship mining for accurate biomedical
+UNet++ [9] proposes a highly flexible multi-scale feature image segmentation. Besides, MedT [15] proposes a Gated
+fusion scheme by aggregating features of varying semantic Axial-Attention model that utilizes Transformer based gated
+
+--- PAGE 4 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 4
+position-sensitive axial attention mechanism for medical image through another embedding. The pipeline of transformer self
+segmentation. Unlike these works, the proposed TransAttUnet attention component is depicted with the green part in Fig. 2.
+aims to investigate the feasibility of applying Transformer Specifically, the encoder features F ∈ Rc×h×w is em-
+to overcome the inability of U-Net to model long-range bedding into three inputs, including the matrix of queries
+contextual interactions. Q ∈ Rc×(h×w), the matrix of keys K ∈ Rc×(h×w), and
+V ∈ Rc×(h×w).
+III. METHODOLOGY
+Q = F · W , K = F · W , V = F · W , (1)
+q k v
+This section mainly introduces the proposed TransAttUnet.
+where W , W , and W are the embedding matrices of dif-
+Firstly, we give a brief overview of TransAttUnet. Then, q k v
+ferent linear projections. Then, a scaled dot-product operation
+we present the principles and the structure of TransAttUnet,
+with softmax normalization between Q and the transposed
+followed by a detailed description of each component. Finally,
+version of K is conducted to generate the matrix of contextual
+the unified loss function used in our TransAttUnet is presented.
+attention map A ∈ Rc×c, in which represents the similarities
+of given elements from Q with respect to global elements of
+A. Overview of TransAttUnet K. To obtain the aggregation of values weighted by attention
+An input medical image X ∈ RC×H×W , where C is the weights, the contextual attention map A would be multiplied
+number of channels and H × W represents the spatial resolu- by V . The multi-head attention can be formulated as:
+tion of image instance. The purpose of the automatic medical QKT
+T SA(Q, K, V ) = sof tmax( √ )V , (2)
+image segmentation task is to predict the corresponding pixel-
+d
+k
+wise semantic label maps with the size of H × W . The √
+where d is the dimensionality of query/key-value sequence.
+general learning framework is illustrated in Fig. 2. As with the k
+Finally, we reshape the optimized feature maps to obtain the
+previous works, the proposed TransAttUnet is also built on the
+final output of TSA, i.e., F ∈ Rc×h×w.
+standard encoder-decoder U-shaped architecture, as shown in tsa
+2) Global Spatial Attention: Meanwhile, the SAA module
+Fig. 2. To overcome the limitations mentioned in Section I,
+also utilizes the GSA component to selectively aggregate
+TransAttUnet aims to leverage multi-level complementary
+global context to the learned features and encode broader
+self-aware attention components, as well as multi-scale skip
+contextual positional information into local features, which
+connections [9] [11] to further improve the semantic segmenta-
+can improve the intra-class compact and optimize the feature
+tion quality of medical images. Compared with the standard U-
+representations. The architecture of global spatial attention is
+Net, the SAA module in TransAttUnet can benefit greatly from
+shown with the blue part in Fig. 2.
+both TSA and GSA mechanisms to capture the long-range
+Firstly, two different types of convolutional operations are
+contextual information, improving the representation ability
+applied to the encoder features F to generate the feature
+of the encoder semantic features. Furthermore, the multi- en
+maps F c(cid:48) ∈ Rc(cid:48)×h×w and F c ∈ Rc×h×w, c(cid:48) = c/8.
+scale skip connections used in TransAttUnet are designed to p p
+achieve the residual and dense shortcut connections between Subsequently, F p c(cid:48) is reshaped and transposed into feature
+the intermediate layers of different semantic scales, which can maps M ∈ R(h×w)×c(cid:48) and N ∈ Rc(cid:48)×(h×w), while F c
+p
+aggregate the contextual information for multi-scale prediction is transposed in to W ∈ Rc×(h×w), respectively. Then, a
+fusion. matrix multiplication operation with softmax normalization is
+performed on M and N , resulting in the position attention
+maps B ∈ R(h×w)×(h×w), which can be defined as:
+B. Self-aware Attention Module
+exp(M · N )
+Firstly, the proposed TransAttUnet augments the standard B i,j = (cid:80)n
+exp(
+i
+M ·
+j
+N )
+, (3)
+U-Net with a robust and effective self-aware attention module, i=1 i j
+that is positioned at the bottom of U-shaped architecture as where B measures the impact of ith position on jth position,
+i,j
+the bridge between the encoder and decoder subnetworks. and n = h × w is the number of pixels. After that, W is
+This duple mainly contains two independent self-attention multiplied with B, and the resulting feature at each position
+mechanisms, i.e., transformer self attention (TSA) and global can be formulated as:
+spatial attention (GSA), which help capture the wider and
+h×w
+richer contextual representations. GSA(M , N , W ) = (cid:88) (W B ). (4)
+p q p,q
+1) Transformer Self Attention: The TSA component is
+q=1
+built on the multi-head self-attention function from Trans-
+Similarly, we reshape the resulting features to generate the
+former, which allows the model to jointly attend to semantic
+final output of GSA, i.e., F ∈ Rc×h×w.
+information from global representation subspaces. To capture gsa
+3) Attention Embedding Fusion: To make full use of the
+the contextual information of absolute and relative position, the
+obtained contextual information and spatial relationships, a
+TSA component first introduces the learnt positional encoding
+weighted combination scheme for the original and attention
+to the input of the encoder features, which can be shared across
+feature embeddings is used at the end of the SSA module,
+all attention layers for a given query/key-value sequence. The
+which is defined as:
+multi-head attention mechanism can be calculated separately
+in multiple single attention heads before being combined F = λ F + λ F + F , (5)
+SAA 1 tsa 2 gsa en
+
+--- PAGE 5 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 5
+F 4 CCC F F 4 CCC F F 4 CCC F
+F 3 F 3 CCC F 3 CCC
+F 2 F 2 CCC F 2 CCC
+F 1 F 1 F 1
+(a) Cascade connection (b) Residual connection (c) Dense connection
+Fig. 3. The comparison of the one-off cascade connections and our residual or dense step-growth connections. (a) Cascade connection [25] [11] [14]: The
+feature maps from all scales are directly concatenated to form a unified tensor; (b) Residual connection: For each decoder block, the input and output features
+of the current block are concatenated and applied as the input of the subsequent block. (c) Dense connection: For each decoder block, the upsampling features
+of previous decoder blocks are considered as inputs, and its own feature maps are used as inputs into all subsequent blocks.
+where λ and λ are the scale parameters that controls the process in the decoder subnetwork. Compared to the exist-
+1 2
+importance of the self attention maps and spatial attention ing works that only using the one-off cascade connection,
+maps, respectively. Both of them are initialized as 0 and are the residual or dense step-growth connections can gradually
+gradually increased to assign more weight to the important aggregate multiple decoder features of varying semantic scales
+features. In this way, we can further optimize the feature to generate the most discriminative feature representations. In
+representations with semantic consistency. this way, the proposed TransAttUnet not only can mitigate
+the loss of fine details caused by over-upsampling, but also
+C. Multi-scale Skip Connection alleviate the problems of vanishing-gradient and overfitting.
+Notably, many advanced works [25] [11] [14] have demon-
+strated the effectiveness of multi-scale feature fusion in encod- D. Loss Function
+ing global and local contexts. Specifically, the multi-scale skip In the training phase, the proposed TransAttUnet is trained
+connection scheme aims to aggregate the features of varying with an objective function in an end-to-end manner. The
+semantic scales with a series of transition operations, including objective function is calculated by the Sorensen-Dice loss and
+upsampling, concatenation, and convolution. Inspired by previ- Binary Cross-Entropy function with a pixel-wise soft-max over
+ous works, three different types of connections, Cascade Con- the final feature maps, which can be expressed as:
+nection, Residual Connection, and Dense Connection shown
+t
+in Fig. 3 are investigated in this study. (cid:88)
+L = (y log(p ) + (1 − y ) log(1 − p )),
+BCE i i i i
+1) Cascade Connection: The feature maps of varying se-
+i=1
+mantic scale from all the blocks are up-sampled to a common (cid:80)t y p + ε (9)
+resolution through bilinear interpolation, and all of them would L = 1 − i=1 i i ,
+Dice (cid:80)t
+y + p + ε
+be directly concatenated into a unified feature representation, i=1 i i
+which is formulated as: L = α · L BCE + β · L Dice ,
+F = f n (υ 1 (F 1 ) ⊕ υ 2 (F 2 ) ⊕ . . . ⊕ F n ), (6) where t is the total number of pixels in each image, y i
+represents the ground-truth value of the ith pixel, and p is
+i
+where ⊕ denotes concatenation operations, υ n (·) and f n (·) are the confidence score of the ith pixel in prediction results. In
+the upsampling and mixed convolution operations in nth stage, our experiment, α = β = 0.5, and ε = 10−6.
+respectively.
+2) Residual Connection: For each decoder block, the input
+IV. EXPERIMENTS
+feature maps are up-sampled to the resolution of outputs
+In this section, we evaluate the performances of the
+through bilinear interpolation, and then concatenated with the
+proposed TransAttUnet framework on multiple benchmark
+output feature maps as the inputs of the subsequent block,
+datasets by comparing it with the state-of-the-art baselines.
+which is formulated as:
+Next, we make a detailed discussion for the ablation studies.
+F n = f n ((F n ) ⊕ υ n−1 (F n−1 )). (7) Finally, visualization analysis of decoder stages is presented.
+3) Dense Connection: The upsampling features of previous
+encoder blocks are integrated as the inputs of the current A. Datasets
+block, and the output feature maps are used as inputs into To verify the effectiveness and efficiency of our TransAt-
+all subsequent blocks, which is formulated as: tUnet, we first conducted comparative experiments for the task
+of skin lesion segmentation on ISIC-2018 [31] dataset, and
+F = f (υ (F ) ⊕ υ (F ) ⊕ . . . ⊕ υ (F )). (8)
+n n 1 1 2 2 n−1 n−1 lung field segmentation on the combination of the JSRT [32],
+In particular, the proposed TransAttUnet focuses on two Montgomery [33], and NIH [23] datasets. Moreover, the pro-
+different multi-scale skip connection schemes, i.e., the residual posed TransAttUnet is also evaluated on the Clean-CC-CCII
+connection and dense connection, to guide the upsampling dataset [34], 2018 Data Science Bowl (Bowl) dataset [35],
+
+--- PAGE 6 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 6
+and the Gland Segmentation (GlaS) dataset [19]. Typically, the occasions, resulting in high inter-subject variability in both
+images from the CC-CCII, Bowl, and GLAS datasets might stain distribution and tissue structure. In our experiments, the
+contain multiple segmenting objects with varying sizes and GlaS dataset is split into two subsets: 85 images for training
+textures, which greatly increases the segmentation difficulty and 80 images for testing, which is consistent with the previous
+and complexity. works [37] [15].
+1) ISIC-2018: The ISIC-2018 is a large-scale dataset of
+dermoscopy images to develop the applications of automated
+B. Experimental Settings
+diagnosis of melanoma from dermoscopic images. It is pro-
+1) Baselines: In our experiments, three versions of
+vided for ISIC-2018 challenge [31] and contains three tasks,
+TransAttUnet, i.e., TransAttUnet C, TransAttUnet D and
+including lesion segmentation, lesion attribute detection, and
+TransAttUnet R are evaluated. In particular, TransAttUnet C
+disease classification. In particular, this paper focuses on the
+represents that the decoder blocks of TransAttUnet are linked
+task of lesion segmentation from dermoscopic images by
+with the one-off cascade connections [25] [11] [14]. By con-
+various types of dermoscopy. It includes 2596 images with
+trast, TransAttUnet D utilizes the dense operations to connect
+the corresponding annotations and these images are randomly
+the decoder blocks, while TransAttUnet R utilizes the residual
+split into 2076 images for training and 520 images for testing.
+operations to connect the decoder blocks. In addition to the
+2) JSRT, Montgomery & NIH: Three datasets of frontal
+vanilla U-Net [6], three broad approaches are involved in our
+chest X-ray images, JSRT, Montgomery, and NIH are involved
+comparative experiments as baselines, i.e., the attention-guided
+in our experiments for automatic lung field segmentation.
+approaches, multi-scale context approaches, and Transformer-
+The JSRT dataset comprises 247 chest X-ray images, among
+based approaches.
+which 154 images are abnormal with pulmonary nodule and
+93 images are normal. By contrast, the Montgomery dataset • Attention-guided approaches: Many advanced attention
+contains 138 chest X-ray images, including 80 normal patients guided models, i.e., Attention U-Net [10], Attention R2U-
+and 58 patients with manifested tuberculosis. Different from Net [38], Channel-UNet [8], XLSor [23], and FANet
+the JSRT and Montgomery, the NIH dataset contains 178 chest [39], and PraNet [40], are introduced to compare with
+X-ray images with various severity of lung diseases, which the proposed TransAttUnet.
+can hugely complicate the task of lung field segmentation. • Multi-scale context approaches: Meanwhile, several
+Following the settings of previous works [23], we combine multi-scale context models are used as the major con-
+these datasets and randomly split them into 407 images for tenders, including Unet++ [9], R2U-Net [38] ResUNet
+training and 178 images for testing. [41], ResUNet++ [42], BCDU-Net [43], KiU-Net [37],
+3) Clean-CC-CCII: As a publicly available chest CT and DoubleU-Net [36].
+dataset used in the field of automated COVID-19 diagnosis, • Transformer-based approaches: Moreover, some state-
+the Clean-CC-CCII dataset contains thousands of annotated of-the-art Transformer-based models, i.e., MedT [15],
+CT scans from 2,698 patients. In particular, it also provides MCTrans [30], Swin-Unet [44] and SegFormer [45] are
+researchers with high-quality annotation of infection marks also considered as important baselines.
+to develop a robust model of COVID-19 pneumonia lesion 2) Implementation Details: To make a fair comparison
+segmentation. In our experiment, 260 CT slices with pixel- with the existing works, the input images from Clean-CC-
+wise annotations of COVID-19 pneumonia lesion are selected CCII, JSRT, Montgomery, and NIH are resized to 512 × 512
+and randomly split into two subsets, i.e., a training set of 200 for training and test, while the images of ISIC-2018 and Bowl
+images and a test set of 60 images. are resized to 256×256. Besides, the input images provided by
+4) Bowl: The Bowl dataset is established for the develop- GlaS are resized to 128×128 in a unified manner. Note that, we
+ment of robust automatic nucleus segmentation algorithms. It employs 8 parallel attention heads in TSA module. Moreover,
+provides participants with a training set of 671 nuclei images we adopt the stochastic gradient descent (SGD) [46] optimizer
+along with pixel-wise masks for the nuclei and a test set with momentum 0.9 and weight decay 0.0001 to optimize the
+of 3020 images, which are extracted from 15 diverse image training process. Furthermore, the proposed TransAttUnet is
+sets of biological experiments. Note that each image contains implemented by using the deep learning toolbox PyTorch [47],
+dozens of nuclei with different sizes. Due to the lack of and all the experiments run on 1 Nvidia Titan XP GPU with 12
+the annotation masks of the test set, we only evaluate the GB memory. The proposed TransAttUnet framework is trained
+performance of the proposed method based on the training for 100 epochs with a batch size of 4. Besides, the initial
+set. Following the settings of the existing work [36], the learning rate is 0.0001, which decays by a factor of 10 for
+training set is split into three subsets: 80% for training, 10% every 40 epochs. In our experiments, the results are given as
+for validation, and 10% for testing. the probability maps directly outputted by the models, which
+5) GlaS: The GlaS dataset is published by the Colon can be binarized with a threshold of 0.5 to get the binary
+Histology Images Challenge Contest of MICCAl’2015 that masks for performance evaluation.
+aims to improve methods for quantifying the morphology 3) Evaluation Metrics: In our experiments, we adopt the
+of glands. It consists of 165 colon histology images derived mean Dice coefficient (DICE) [48] as the key evaluation metric
+from 16 H&E stained histological sections of stage T3 or T4 to measure the extent of similarity between the predicted mask
+colorectal adenocarcinoma from different patients. In partic- and ground truth. Besides, four additional criteria, i.e., mean
+ular, each sample is processed in the laboratory on different Intersection over Union (IoU), accuracy (ACC), recall (REC),
+
+--- PAGE 7 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 7
+and precision (PRE) scores are calculated pixel-wisely and TABLE I
+used to evaluate the quantitative segmentation performance. COMPARISONS WITH THE STATE-OF-THE-ART BASELINES ON THE
+ISIC-2018 DATASET. ALL RESULTS WERE ANALYSED IN PERCENTAGE (%)
+These metrics are associated with four values, i.e., true-
+TERMS. RESULTS OF THE MODEL WITH “*” ARE REIMPLEMENTED BY THE
+positive (TP), true-negative (TN), false-positive (FP), and RELEASED SOURCE CODES. THE “-” DENOTES THE CORRESPONDING
+false-negative (FN), RESULT IS NOT PROVIDED. FOR EACH COLUMN, THE BEST AND SECOND
+BEST RESULTS ARE HIGHLIGHTED IN RED AND BLUE, RESPECTIVELY.
+2 × T P
+Dice = ,
+2 × T P + F P + F N
+Method Year DICE IoU ACC REC PRE
+T P
+IoU = ,
+T P + F P + F N U-Net [6] 2015 67.40 54.90 - 70.80 -
+T P + T N
+Accuracy = , (10) Attention U-Net [10] 2018 66.50 56.60 - 71.70 -
+T P + T N + F P + F N
+R2U-Net [38] 2018 67.90 58.10 - 79.20 -
+T P
+Recall = , Att R2UNet [38] 2018 69.10 59.20 - 72.60 -
+T P + F N
+T P ResUNet* [42] 2019 79.15 70.15 92.28 82.43 84.77
+P recision = ,
+T P + F P Channel-UNet* [8] 2019 84.82 75.92 94.10 94.01 81.04
+BCDU-Net [43] 2019 85.10 - - 7850 -
+FANet [39] 2021 87.31 80.23 - 86.50 92.35
+C. Experimental Results
+PraNet* [40] 2021 87.46 80.23 95.37 91.28 87.59
+1) Evaluation on Skin Lesion Segmentation: To evaluate
+DoubleU-Net [36] 2020 89.62 82.12 - 87.80 94.59
+the effectiveness of the proposed TransAttUnet, we first con-
+Swin-Unet* [44] 2021 89.72 82.90 - 90.32 92.04
+duct the experiments on the ISIC-2018 dataset for the task of
+SegFormer* [45] 2021 90.24 83.60 - 91.12 92.10
+skin lesion segmentation. The comparison results of evaluation
+metrics are presented in TABLE I, and the corresponding MCTrans [30] 2021 90.35 - - - -
+quantitative results are illustrated in Fig. 4(a).
+TransAttUnet C - 89.25 81.46 95.06 89.90 91.59
+From Table I, we have the following observations: 1) Com-
+TransAttUnet D - 90.14 83.04 96.14 90.42 92.17
+paring with the vanilla U-Net (67.40%), we can observe that
+TransAttUnet R - 90.74 83.80 96.38 90.93 92.42
+the attention-guided models, such as Channel-UNet (84.82%)
+and PraNet (87.46%), are obviously superior to the vanilla U-
+Net (67.40%) with the guidance of various attentional mecha-
+nisms. These improvements can demonstrate that attention- the effectiveness of the proposed TransAttUnet for automated
+aware mechanism can play a vital role in medical image skin lesion segmentation.
+segmentation. 2) By aggregating the context information from 2) Evaluation on Lung Field Segmentation: Moreover,
+varying semantic scales, it is easy to see that the multi-scale we evaluate our TransAttUnet to solve the task of lung field
+context approaches, i.e., BCDU-Net (85.10%) and DoubleU- segmentation from the chest X-ray images on the combination
+Net (89.62%), have the powerful ability in dealing with the of JSRT, Montgomery, and NIH datasets. The comparison
+task of skin lesion segmentation, which proves the effective- results of evaluation metrics are presented in TABLE II and the
+ness of the multi-scale context fusion scheme. 3) By con- corresponding quantitative results are illustrated in Fig. 4(b).
+trast, the recent Transformer-based framework, i.e, MCTrans Based on the experimental results in Table II, we have some
+(90.35%), is superior to the above works. It can demonstrate new observations as follows: 1) Firstly, we can observe that the
+the superiority of the Transformer in learning the long-range corresponding scores of the evaluation metrics are quite close.
+dependencies of different pixels. 4) Although MCTrans can That is because that the testing chest X-ray images provided
+achieve reliable performance, the proposed TransAttUnet still by the JSRT and Montgomery datasets are generally normal,
+outperforms MCTrans (90.74% vs. 90.35%), which verifies and the noise interference caused by various lesion features
+the efficacy of jointly exploring multi-level guided attention is reduced in semantic segmentation. 2) Nevertheless, the
+and multi-scale skip connection. Moreover, our TransAttUnet proposed TransAttUnet achieves better evaluation results than
+achieves the highest scores on almost all evaluation metrics previous state-of-the-art models and yields the highest DICE
+and shows a more precise and fine segmentation output of score of 98.88% for lung field segmentation, which demon-
+the proposed network than the existing baselines, as shown in strates the efficacy of the designed TransAttUnet. As shown
+Fig. 4(a). 5) Both the diagnostic sensitivity of the proposed in Fig. 4(b), the segmentation outputs of our TransAttUnet
+TransAttUnet R and TransAttUnet D outperform TransAt- are more close to the ground truths in comparison with other
+tUnet C, which demonstates that the residual or dense step- baselines. 3) In particular, the performance of TransAttUnet
+growth connections can better aggregate multiple decoder is clearly superior to the previous baselines, especially for U-
+features of varying semantic scales rather than the one- Net (96.17%) with the improvement of 2.71% in terms of the
+off cascade connections. Furthermore, the proposed TransAt- DICE score. This improvement demonstrates that the proposed
+tUnet R surpasses the DICE score of TransAttUnet D by TransAttUnet benefits greatly from encoder-decoder guided
+0.6%. That is probably because the dense connection used attention and multi-scale skip connections, which help learn
+in TransAttUnet might lead to a fair amount of redundant the global contextual information and discriminative features
+information. Therefore, these comparative results demonstrate to distinguish the lung field from the surrounding structures. 4)
+
+--- PAGE 8 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 8
+Input U-Net Attention U-Net PraNet DoubleU-Net TransAttUnet(Ours) Ground Truth
+(a) Quantitative results for skin lesion segmentation.
+Input U-Net Attention U-Net Unet++ PraNet TransAttUnet(Ours) Ground Truth
+(b) Quantitative results for lung field segmentation.
+Input U-Net PPrraaNNeett AAtttteennttiioonn UU--NNeett UUnneett++++ TransAttUnet(Ours) Ground Truth
+(c) Quantitative results for pneumonia lesion segmentation.
+Fig. 4. Comparison of quantitative results between the state-of-the-art baselines and the proposed TransAttUnet on the (a) ISIC 2018 dataset, (b) the
+combination of JSRT, Montgomery, and NIH datasets, (c) the Clean-CC-CCII dataset, respectively. To make better visualize the differences between lung
+segmentation results and ground truths, we highlight the key region with the appropriate boxes.
+Likewise, the proposed TransAttUnet consistently outperforms experiments on the Clean-CC-CCII dataset to further ensure
+the recent works, i.e., FANet (98.28%) and PraNet (98.36%), that the proposed TransAttUnet is appropriate for pneumonia
+which can verify the abilities of TransAttUnet in improving lesion segmentation. The comparison results of evaluation
+the segmentation quality of the details. metrics are presented in TABLE III and the corresponding
+3) Evaluation on Pneumonia Lesion Segmentation: Due quantitative results are illustrated in Fig. 4(c).
+to the epidemic of COVID-19 in recent years, it has been On the basis of the above results, we have the follow-
+a hot topic in the field of medical image analysis. Note ing observations: 1) It can be observed that the proposed
+that it is difficult to accurately and completely identify the TransAttUnet consistently outperforms the previous baselines
+segmenting objects of pneumonia lesions from chest CT due and yields the highest DICE score of 86.57%, which again
+to the complex textures and shapes. Thus, we also perform the demonstrates the superiorities of our TransAttUnet method. 2)
+
+--- PAGE 9 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 9
+TABLE II TABLE IV
+COMPARISONS WITH THE STATE-OF-THE-ART BASELINES ON THE JSRT COMPARISONS WITH THE STATE-OF-THE-ART BASELINES ON THE 2018
+AND MONTGOMERY DATASET. ALL RESULTS WERE ANALYSED IN DATA SCIENCE BOWL DATASET. ALL RESULTS WERE ANALYSED IN
+PERCENTAGE (%) TERMS. RESULTS OF THE MODEL WITH “*” ARE PERCENTAGE (%) TERMS. RESULTS OF THE MODEL WITH “*” ARE
+REIMPLEMENTED BY THE RELEASED SOURCE CODES. THE “-” DENOTES REIMPLEMENTED BY THE RELEASED SOURCE CODES. THE “-” DENOTES
+THE CORRESPONDING RESULT IS NOT PROVIDED. FOR EACH COLUMN, THE CORRESPONDING RESULT IS NOT PROVIDED. FOR EACH COLUMN,
+THE BEST AND SECOND BEST RESULTS ARE HIGHLIGHTED IN RED AND THE BEST AND SECOND BEST RESULTS ARE HIGHLIGHTED IN RED AND
+BLUE, RESPECTIVELY. BLUE, RESPECTIVELY.
+Method Year DICE IoU ACC REC PRE Method Year DICE IoU ACC REC PRE
+U-Net [6] 2015 96.17 92.71 98.21 94.94 97.50 U-Net [6] 2015 75.73 91.03 - - -
+XLSor [23] 2019 97.54 - - 97.40 97.73 FANet* [39] 2021 81.03 71.08 95.59 80.62 82.31
+ResUNet* [41] 2020 97.12 94.45 98.64 96.61 97.70 Channel-UNet* [8] 2019 87.55 79.75 96.27 90.70 87.86
+Attention U-Net* [10] 2018 97.59 95.31 98.81 98.82 96.41 Unet++ [9] 2018 89.74 92.55 - - -
+Swin-Unet* [44] 2021 97.67 95.48 98.71 95.42 98.36 ResUNet* [41] 2020 89.91 82.44 97.05 90.00 90.84
+Unet++* [9] 2018 97.84 95.80 98.93 99.28 96.47 Attention U-Net [10] 2018 90.83 91.03 - - 91.61
+ResUNet++* [42] 2019 97.92 95.95 98.96 98.68 98.48 PraNet* [40] 2021 90.85 85.34 - - 90.94
+FANet* [39] 2021 98.28 96.64 99.12 98.04 98.54 DoubleU-Net [36] 2020 91.33 84.07 - 64.07 94.96
+PraNet* [40] 2021 98.36 96.80 99.17 98.26 98.48
+TransAttUnet C - 90.04 84.36 97.05 90.03 91.23
+TransAttUnet C - 98.14 96.37 99.08 98.56 98.15 TransAttUnet D - 91.34 84.62 97.37 91.86 91.53
+TransAttUnet D - 98.56 97.18 99.27 98.88 98.26 TransAttUnet R - 91.62 84.98 97.46 91.85 91.93
+TransAttUnet R - 98.88 97.82 99.41 98.74 99.04
+TABLE V
+COMPARISONS WITH THE STATE-OF-THE-ART BASELINES ON THE GLAS
+TABLE III
+DATASET. ALL RESULTS WERE ANALYSED IN PERCENTAGE (%) TERMS.
+COMPARISONS WITH THE STATE-OF-THE-ART BASELINES ON THE RESULTS OF THE MODEL WITH “*” ARE REIMPLEMENTED BY THE
+CLEAN-CC-CCII DATASET. ALL RESULTS WERE ANALYSED IN RELEASED SOURCE CODES. THE “-” DENOTES THE CORRESPONDING
+PERCENTAGE (%) TERMS. RESULTS OF THE MODEL WITH “*” ARE RESULT IS NOT PROVIDED. FOR EACH COLUMN, THE BEST AND SECOND
+REIMPLEMENTED BY THE RELEASED SOURCE CODES. THE “-” DENOTES BEST RESULTS ARE HIGHLIGHTED IN RED AND BLUE, RESPECTIVELY.
+THE CORRESPONDING RESULT IS NOT PROVIDED. FOR EACH COLUMN,
+THE BEST AND SECOND BEST RESULTS ARE HIGHLIGHTED IN RED AND
+BLUE, RESPECTIVELY. Method Year DICE IoU ACC REC PRE
+U-Net [6] 2015 75.73 91.03 - - -
+Method Year DICE IoU ACC REC PRE
+ResUNet* [41] 2020 80.88 69.11 81.49 85.11 80.01
+U-Net* [6] 2015 82.39 71.25 99.19 78.99 87.62
+MedT [15] 2021 81.82 69.61 - - -
+PraNet* [39] 2021 82.40 71.26 99.14 82.53 83.74
+Unet++ [9] 2018 81.83 69.61 - - -
+ResUNet* [42] 2019 82.90 71.96 99.17 83.60 83.35
+Attention U-Net [10] 2018 81.59 70.06 - - -
+Attention U-Net* [10] 2018 83.92 73.40 99.24 83.23 86.07
+KiU-Net [37] 2020 83.25 72.78 - - -
+Swin-Unet [44] 2021 84.47 76.59 94.95 84.60 84.35
+FANet [39] 2021 84.67 74.30 - - -
+Unet++* [9] 2018 84.64 74.43 99.30 81.98 86.52
+Swin-Unet [44] 2021 86.70 77.32 - 89.00 86.12
+PraNet* [40] 2021 84.82 76.26 93.91 85.60 85.08
+SegFormer [45] 2021 87.36 79.71 - 85.56 86.53
+SegFormer [45] 2021 84.96 76.56 94.31 85.76 85.63
+TransAttUnet C - 87.35 79.55 95.29 87.82 86.46
+ResUNet++* [42] 2019 85.17 75.36 99.27 86.40 85.61
+TransAttUnet D - 88.37 80.08 88.47 89.19 88.49
+TransAttUnet C - 85.51 75.56 99.23 83.54 85.52
+TransAttUnet R - 89.11 81.13 89.02 90.08 88.95
+TransAttUnet D - 86.08 76.25 99.32 86.91 86.23
+TransAttUnet R - 86.57 77.16 99.38 85.95 88.47
+from the overfitting problem due to the lack of training data.
+4) Besides, the proposed TransAttUnet outperforms the recent
+Both TransAttUnet D and TransAttUnet R are able to obtain Transformer-based work, i.e., Swin-Unet (84.47%) and Seg-
+better segmentation performance than TransAttUnet C and the Former (84.96%), which demonstrates the powerful ability of
+previous baselines. By contrast, the proposed TransAttUnet R TransAttUnet in medical image segmentation. 5) Futhermore,
+achieves a better performance than TransAttUnet D (86.57% Fig. 4(c) shows that the superiority of our TransAttUnet over
+vs. 86.08%), which further verifies the superiorities of the the other methods when dealing with lesions at different scales,
+residual connection in comparison with the dense connection. which proves the availability of the proposed TransAttUnet for
+3) However, some reliable models, such as PraNet, achieve Covid-19 pneumonia lesion segmentation.
+the relatively low Dice score in the COVID-19 pneumonia 4) Evaluation on Nuclei Segmentation: In this part, we
+lesion segmentation task. We suspected that it might suffer evaluate the proposed TransAttUnet on the 2018 Data Science
+
+--- PAGE 10 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 10
+Input U-Net U-Net++ Attention U-Net DoubleU-Net TransAttUnet(Ours) Ground Truth
+(a) Quantitative results for nuclei segmentation.
+Input U-Net U-Net++ Attention U-Net KiU-Net TransAttUnet(Ours) Ground Truth
+(b) Quantitative results for gland segmentation.
+Fig. 5. Comparison of quantitative results between the state-of-the-art baselines and the proposed TransAttUnet on the (a) 2018 Data Science Bowl dataset,
+(b) the GLAS dataset, respectively. To make better visualize the differences between lung segmentation results and ground truths, we highlight the key region
+with the appropriate boxes.
+Bowl dataset for multiple nuclei segmentation. The compari- 5) Evaluation on Gland Segmentation: Furthermore, we
+son results of evaluation metrics are presented in TABLE IV also conduct comparative experiments on the GLAS dataset
+and the corresponding quantitative results are illustrated in to demonstrate the validity of the proposed TransAttUnet for
+Fig. 5(a). quantifying the morphology of glands. The comparison results
+of evaluation metrics are presented in TABLE V and the
+corresponding quantitative results are illustrated in Fig. 5(b).
+Based on the above comparative results, we have the fol-
+lowing observations: 1) Compared with the vanilla U-Net, According to these experimental results, we have the fol-
+the use of encoder-decoder guided attention and multi-scale lowing observations: 1) Note that GLAS is a small dataset that
+skip connections can lead to the further improvement of contains multiple complex objects of interest. By incorporating
+segmentation quality, improving with the DICE score from with the encoder-decoder guided attention and multi-scale skip
+75.76% to 91.92%. 2) Consistently, the proposed TransAttUnet connections, our TransAttUnet achieves a better performance
+is superior to the existing competitors of the attention-guided than the existing baselines and contributes a new state-of-
+and multi-scale context approaches, such as Attention U-Net the-art technique for automatic gland segmentation. 2) In
+(91.62% vs. 90.93%) and ResUNet (91.62% vs. 89.91%). particular, the proposed TransAttUnet outperforms the recent
+3) It can be seen that our TransAttUnet yields the highest Transformer-based work, i.e., MedT (81.82%), Swin-Unet
+score on almost all evaluation metrics. Although DoubleU-Net (86.70%) and SegFormer (87.36%), which again demonstrates
+outperforms in terms of precision, our TransAttUnet produces the powerful ability of TransAttUnet in medical image seg-
+the higher scores on other metrics, especially for the IoU score mentation. 3) Moreover, we can clearly see that both TransAt-
+of 84.98% with the improvement of 0.91%. 4) As illustrated in tUnet D and TransAttUnet R clearly outperform TransAt-
+Fig. 5(a), we can observe that our TransAttUnet can effectively tUnet C and the previous state-of-the-art method, i.e., KiU-
+capture the boundaries of cell nuclei and generate better Net. In particular, TransAttUnet D achieves the improvement
+segmentation prediction. These comparative results can prove of 5.86% and 8.85% in terms of DICE and IoU scores, respec-
+the efficacy of the proposed method for identifying multiple tively. According to this significant improvement, it has been
+segmenting objects. proven the reliability and superiority of our TransAttUnet. 4)
+
+--- PAGE 11 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 11
+Stage-1 Stage-2 Stage-3 Stage-4 Prediction Zoom Ground Truth
+te
+N
+U-
+te
+n
+U
+ttA
+sn
+a
+r
+T
+Fig. 6. Visualizations of feature maps produced by vanilla U-Net and the proposed TransAttUnet in different decoder stages based on the Clean-CC-CCII
+dataset. Best viewed with zoom in.
+TABLE VI multiple components to further verify the effectiveness of
+COMPARISONS OF MEAN DICE SCORE FOR ABLATION STUDIES WITH our work. For example, after removing the component of
+DIFFERENT EXPERIMENTAL SETTINGS. FOR EACH COLUMN, THE BEST
+MSC, the evaluation scores of “TAU w/o MSC” drop to
+RESULTS ARE HIGHLIGHTED IN RED.
+88.55%, 98.49%, 85.97%, 90.37%, and 87.83%, respectively.
+Likewise, the performance of “TAU w/o TSA” and “TAU
+Methods Skin Lung Pneu. Bowl Gland
+w/o GSA” would degrade when we delete the other two
+TAU w/o TSA + GSA 83.89 97.55 83.56 84.54 81.59
+components in turn. Compared with the full model, the above
+TAU w/o TSA + MSC 84.49 97.75 84.99 85.82 83.84
+experimental results primarily prove the superiorities of the
+TAU w/o GSA + MSC 85.12 97.79 85.03 86.55 84.64
+designed components. Apparently, all the components can
+TAU w/o TSA 87.13 98.16 85.59 88.42 85.96
+complement and reinforce each other, which further verifies
+TAU w/o GSA 87.86 98.24 85.63 88.91 86.78
+the combined effects of the above semantic segmentation.
+TAU w/o MSC 88.55 98.49 85.97 90.37 87.83
+TransAttUnet 90.74 98.88 86.57 91.62 89.11
+E. Visualizations of Decoder Stages
+Compared with vanilla U-Net, the proposed TransAttUnet
+Besides, Fig. 5(b) demonstrates that our TransAttUnet can benefits greatly from the long-range feature dependencies
+better distinguish the gland itself from the surrounding tissue, and the global contextual information. To further verify their
+leading to excellent gland segmentation performance. abilities of semantic discrimination, we visualize feature maps
+All results in the above experiments quantitatively demon- of each decoder stage for both U-Net and TransAttUnet, as
+strate the effectiveness and generalizability of the proposed illustrated in Fig. 6.
+TransAttUnet for medical image segmentation in various chal- Based on the comparative results, we can make the follow-
+lenging scenarios. ing observations: 1) It can be seen that the encoders of U-
+Net fail to make full use of the contextual information. With
+the guidance of the multi-level non-local attention mechanisms
+D. Ablation Studies
+that effectively capture contexts, the obtained encoder features
+To evaluate the effectiveness of each component added in
+can provide more global semantic information to our decoders
+the proposed TransAttUnet, we conduct comprehensive abla-
+at lower stages, which can generate the most discriminative
+tion experiments by removing the components successively.
+features. 2) Meanwhile, our TransAttUnet can make full use
+The experimental results are presented in Table VI. In detail,
+of the multi-scale contextual information to generate accu-
+“TSA” denotes the proposed transformer self attention block;
+rate predictions at later stages. As shown with the zoom-
+“GSA” denotes the designed global spatial attention block;
+in patches of the deepest stage, the segmentation results of
+“MSC” denotes the multi-scale skip connections between the
+TransAttUnet are more detailed and reliable with a clearly
+decoders; and “TAU” is considered as the “full” model.
+discernible boundary. Therefore, we can conclude that the
+When both TSA and GSA blocks are removed, “TAU w/o
+semantic information learned by our method is more effective
+TSA + GSA” would suffer serious performance degradation.
+to improve the performance of medical image segmentation.
+Nonetheless, it consistently outperforms the vanilla U-Net,
+which demonstrates the effectiveness of the multi-scale skip
+connections between the decoders. Moreover, the results of V. CONCLUSION AND FUTURE WORK
+“TAU w/o TSA + MSC” and “TAU w/o GSA + MSC” can In this paper, we propose a novel Transformer based
+indicate that the proposed TSA and GSA blocks are equally attention-guided U-Net called TransAttUnet, which concur-
+effective in developing the segmentation quality. Subsequently, rently incorporates multi-level guided attention and multi-scale
+we also perform additional ablation studies by removing skip connections into U-Net for improving the segmentation
+
+--- PAGE 12 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 12
+quality of biomedical images. Specifically, the multi-level [11] Y. Cai and Y. Wang, “Ma-unet: An improved version of unet based on
+guided attention block is able to make full use of global multi-scale and attention mechanism for medical image segmentation,”
+arXiv preprint arXiv:2012.10952, 2020.
+contextual information by concurrently exploring long-range
+[12] M. Jaderberg, K. Simonyan, A. Zisserman, and K. Kavukcuoglu, “Spa-
+interactions and global spatial relationships between encoder tial transformer networks,” arXiv preprint arXiv:1506.02025, 2015.
+semantic features. Meanwhile, the multi-scale skip connection [13] N. Parmar, A. Vaswani, J. Uszkoreit, L. Kaiser, N. Shazeer, A. Ku, and
+D. Tran, “Image transformer,” in International Conference on Machine
+scheme can flexibly aggregate contextual feature maps from
+Learning. PMLR, 2018, pp. 4055–4064.
+decoders of varying semantic scales to generate the dis- [14] J. Chen, Y. Lu, Q. Yu, X. Luo, E. Adeli, Y. Wang, L. Lu, A. L. Yuille, and
+criminative feature representations. Compared with previous Y. Zhou, “Transunet: Transformers make strong encoders for medical
+image segmentation,” arXiv preprint arXiv:2102.04306, 2021.
+advanced works, the proposed TransAttUnet benefits greatly
+[15] J. M. J. Valanarasu, P. Oza, I. Hacihaliloglu, and V. M. Patel, “Medical
+from long-range feature dependencies and the multiscale con- transformer: Gated axial-attention for medical image segmentation,”
+textual information, which ensures the feature representations arXiv preprint arXiv:2102.10662, 2021.
+[16] C. Tao, S. Gao, M. Shang, W. Wu, D. Zhao, and R. Yan, “Get the point
+with semantic consistency. In this way, we can effectively
+of my utterance! learning towards effective responses with multi-head
+mitigate the intrinsic limitations that occur in traditional U- attention mechanism.” in International Joint Conference on Artificial
+shape architecture. Extensive experimental results on different Intelligencec, 2018, pp. 4418–4424.
+[17] Z. Yu, X. Jiang, F. Zhou, J. Qin, D. Ni, S. Chen, B. Lei, and T. Wang,
+benchmark datasets demonstrate that the proposed TransAt-
+“Melanoma recognition in dermoscopy images via aggregated deep
+tUnet can achieve consistent performance improvements by convolutional features,” IEEE Transactions on Biomedical Engineering,
+integrating the above novelties. vol. 66, no. 4, pp. 1006–1016, 2018.
+[18] A. Rashno, D. D. Koozekanani, P. M. Drayna, B. Nazari, S. Sadri,
+Despite the fact that our study has some vital contributions,
+H. Rabbani, and K. K. Parhi, “Fully automated segmentation of fluid/cyst
+there are still several limitations. Admittedly, the proposed regions in optical coherence tomography images with diabetic macular
+TransAttUnet heavily relies on the global self-attention mecha- edema using neutrosophic sets and graph algorithms,” IEEE Transac-
+tions on Biomedical Engineering, vol. 65, no. 5, pp. 989–1001, 2017.
+nism and thus suffers large memory footprint and computation [19] P. Mal´ık, Sˇ. Krisˇtof´ık, and K. Knapova´, “Instance segmentation model
+cost. Moreover, the potential of Transformer for medical image created from three semantic segmentations of mask, boundary and
+segmentation remains incomplete and underutilized in the centroid pixels verified on glas dataset,” in 2020 15th Conference on
+Computer Science and Information Systems (FedCSIS). IEEE, 2020,
+study of our work, especially in the face of various biomedical
+pp. 569–576.
+images. Therefore, further improvements in these aspects will [20] P. Zhao, J. Zhang, W. Fang, and S. Deng, “Scau-net: Spatial-channel
+be investigated in our future work. attention u-net for gland segmentation,” Frontiers in Bioengineering and
+Biotechnology, vol. 8, 2020.
+[21] M. Islam, V. Vibashan, V. J. M. Jose, N. Wijethilake, U. Utkarsh,
+REFERENCES and H. Ren, “Brain tumor segmentation and survival prediction using
+3d attention unet,” in International MICCAI Brainlesion Workshop.
+[1] K. Roy, D. Banik, D. Bhattacharjee, O. Krejcar, and C. Kollmann, Springer, 2019, pp. 262–272.
+“Lwmla-net: A lightweight multi-level attention-based network for [22] O¨ . C¸ ic¸ek, A. Abdulkadir, S. S. Lienkamp, T. Brox, and O. Ronneberger,
+segmentation of covid-19 lungs abnormalities from ct images,” IEEE “3d u-net: learning dense volumetric segmentation from sparse anno-
+Transactions on Instrumentation and Measurement, vol. 71, pp. 1–13, tation,” in International Conference on Medical Image Computing and
+2022. Computer-Assisted Intervention. Springer, 2016, pp. 424–432.
+[2] S. Pramanik, S. Ghosh, D. Bhattacharjee, and M. Nasipuri, “Segmen- [23] Y.-B. Tang, Y.-X. Tang, J. Xiao, and R. M. Summers, “Xlsor: A robust
+tation of breast-region in breast thermogram using arc-approximation and accurate lung segmentor on chest x-rays using criss-cross attention
+and triangular-space search,” IEEE Transactions on Instrumentation and and customized radiorealistic abnormalities generation,” in International
+Measurement, vol. 69, no. 7, pp. 4785–4795, 2019. Conference on Medical Imaging with Deep Learning. PMLR, 2019,
+[3] X. Yang, Q. Wei, C. Zhang, K. Zhou, L. Kong, and W. Jiang, “Colon pp. 457–467.
+polyp detection and segmentation based on improved mrcnn,” IEEE [24] X. Chen, L. Yao, and Y. Zhang, “Residual attention u-net for automated
+Transactions on Instrumentation and Measurement, vol. 70, pp. 1–10, multi-class segmentation of covid-19 chest ct images,” arXiv preprint
+2020. arXiv:2004.05645, 2020.
+[4] J. Fu, J. Liu, Y. Li, Y. Bao, W. Yan, Z. Fang, and H. Lu, “Contextual [25] X. Qin, Z. Zhang, C. Huang, M. Dehghan, O. R. Zaiane, and M. Jager-
+deconvolution network for semantic segmentation,” Pattern Recognition, sand, “U2-net: Going deeper with nested u-structure for salient object
+vol. 101, p. 107152, 2020. detection,” Pattern Recognition, vol. 106, p. 107404, 2020.
+[5] J. Long, E. Shelhamer, and T. Darrell, “Fully convolutional networks [26] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai,
+for semantic segmentation,” in Proceedings of the IEEE Conference on T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly et al.,
+Computer Vision and Pattern Recognition, 2015, pp. 3431–3440. “An image is worth 16x16 words: Transformers for image recognition
+[6] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks at scale,” arXiv preprint arXiv:2010.11929, 2020.
+for biomedical image segmentation,” in International Conference on [27] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, and
+Medical Image Computing and Computer-Assisted Intervention, 2015, S. Zagoruyko, “End-to-end object detection with transformers,” in
+pp. 234–241. European Conference on Computer Vision. Springer, 2020, pp. 213–
+[7] W. Luo, Y. Li, R. Urtasun, and R. Zemel, “Understanding the effective 229.
+receptive field in deep convolutional neural networks,” in Proceedings [28] S. Zheng, J. Lu, H. Zhao, X. Zhu, Z. Luo, Y. Wang, Y. Fu, J. Feng,
+of the 30th International Conference on Neural Information Processing T. Xiang, P. H. Torr et al., “Rethinking semantic segmentation from
+Systems, 2016, pp. 4905–4913. a sequence-to-sequence perspective with transformers,” arXiv preprint
+[8] Y. Chen, K. Wang, X. Liao, Y. Qian, Q. Wang, Z. Yuan, and P.-A. Heng, arXiv:2012.15840, 2020.
+“Channel-unet: a spatial channel-wise convolutional neural network for [29] Y. Zhang, H. Liu, and Q. Hu, “Transfuse: Fusing transformers and
+liver and tumors segmentation,” Frontiers in Genetics, vol. 10, p. 1110, cnns for medical image segmentation,” arXiv preprint arXiv:2102.08005,
+2019. 2021.
+[9] Z. Zhou, M. M. R. Siddiquee, N. Tajbakhsh, and J. Liang, “Unet++: [30] Y. Ji, R. Zhang, H. Wang, Z. Li, L. Wu, S. Zhang, and P. Luo, “Multi-
+A nested u-net architecture for medical image segmentation,” in Deep compound transformer for accurate biomedical image segmentation,”
+learning in medical image analysis and multimodal learning for clinical arXiv preprint arXiv:2106.14385, 2021.
+decision support. Springer, 2018, pp. 3–11. [31] N. Codella, V. Rotemberg, P. Tschandl, M. E. Celebi, S. Dusza,
+[10] O. Oktay, J. Schlemper, L. L. Folgoc, M. Lee, M. Heinrich, K. Misawa, D. Gutman, B. Helba, A. Kalloo, K. Liopyris, M. Marchetti et al., “Skin
+K. Mori, S. McDonagh, N. Y. Hammerla, B. Kainz et al., “Attention u- lesion analysis toward melanoma detection 2018: A challenge hosted
+net: Learning where to look for the pancreas,” Medical Image Analysis, by the international skin imaging collaboration (isic),” arXiv preprint
+vol. 53, no. 2, 2019, doi.org/10.1016/j.media.2019.01.012. arXiv:1902.03368, 2019.
+
+--- PAGE 13 ---
+IEEE TRANSACTIONS ON INSTRUMENTATION & MEASUREMENT, VOL. X, NO. X, 2022 13
+[32] J. Shiraishi, S. Katsuragawa, J. Ikezoe, T. Matsumoto, T. Kobayashi, K.-
+i. Komatsu, M. Matsui, H. Fujita, Y. Kodera, and K. Doi, “Development
+of a digital image database for chest radiographs with and without a
+lung nodule: receiver operating characteristic analysis of radiologists’
+detection of pulmonary nodules,” American Journal of Roentgenology,
+vol. 174, no. 1, pp. 71–74, 2000.
+[33] S. Jaeger, S. Candemir, S. Antani, Y.-X. J. Wa´ng, P.-X. Lu, and
+G. Thoma, “Two public chest x-ray datasets for computer-aided screen-
+ing of pulmonary diseases,” Quantitative Imaging in Medicine and
+Surgery, vol. 4, no. 6, p. 475, 2014.
+[34] X. He, S. Wang, S. Shi, X. Chu, J. Tang, X. Liu, C. Yan, J. Zhang, and
+G. Ding, “Benchmarking deep learning models and automated model
+design for covid-19 detection with chest ct scans,” medRxiv, 2020.
+[35] J. C. Caicedo, A. Goodman, K. W. Karhohs, B. A. Cimini, J. Ackerman,
+M. Haghighi, C. Heng, T. Becker, M. Doan, C. McQuin et al., “Nucleus
+segmentation across imaging experiments: the 2018 data science bowl,”
+Nature Mcethods, vol. 16, no. 12, pp. 1247–1253, 2019.
+[36] D. Jha, M. A. Riegler, D. Johansen, P. Halvorsen, and H. D. Johansen,
+“Doubleu-net: A deep convolutional neural network for medical im-
+age segmentation,” in 2020 IEEE 33rd International Symposium on
+Computer-Based Medical Systems (CBMS). IEEE, 2020, pp. 558–564.
+[37] J. M. J. Valanarasu, V. A. Sindagi, I. Hacihaliloglu, and V. M. Patel,
+“Kiu-net: Towards accurate segmentation of biomedical images using
+over-complete representations,” in International Conference on Medical
+Image Computing and Computer-Assisted Intervention. Springer, 2020,
+pp. 363–373.
+[38] M. Z. Alom, C. Yakopcic, T. M. Taha, and V. K. Asari, “Nuclei
+segmentation with recurrent residual convolutional neural networks
+based u-net (r2u-net),” in NAECON 2018-IEEE National Aerospace and
+Electronics Conference. IEEE, 2018, pp. 228–233.
+[39] N. K. Tomar, D. Jha, M. A. Riegler, H. D. Johansen, D. Johansen,
+J. Rittscher, P. Halvorsen, and S. Ali, “Fanet: A feedback attention
+network for improved biomedical image segmentation,” arXiv preprint
+arXiv:2103.17235, 2021.
+[40] D.-P. Fan, G.-P. Ji, T. Zhou, G. Chen, H. Fu, J. Shen, and L. Shao,
+“Pranet: Parallel reverse attention network for polyp segmentation,” in
+International Conference on Medical Image Computing and Computer-
+Assisted Intervention. Springer, 2020, pp. 263–273.
+[41] F. I. Diakogiannis, F. Waldner, P. Caccetta, and C. Wu, “Resunet-a: a
+deep learning framework for semantic segmentation of remotely sensed
+data,” ISPRS Journal of Photogrammetry and Remote Sensing, vol. 162,
+pp. 94–114, 2020.
+[42] D. Jha, P. H. Smedsrud, M. A. Riegler, D. Johansen, T. De Lange,
+P. Halvorsen, and H. D. Johansen, “Resunet++: An advanced archi-
+tecture for medical image segmentation,” in 2019 IEEE International
+Symposium on Multimedia (ISM). IEEE, 2019, pp. 225–2255.
+[43] R. Azad, M. Asadi-Aghbolaghi, M. Fathy, and S. Escalera, “Bi-
+directional convlstm u-net with densley connected convolutions,” in
+Proceedings of the IEEE/CVF International Conference on Computer
+Vision Workshops, 2019, pp. 1–10.
+[44] H. Cao, Y. Wang, J. Chen, D. Jiang, X. Zhang, Q. Tian, and M. Wang,
+“Swin-unet: Unet-like pure transformer for medical image segmenta-
+tion,” arXiv preprint arXiv:2105.05537, 2021.
+[45] E. Xie, W. Wang, Z. Yu, A. Anandkumar, J. M. Alvarez, and P. Luo,
+“Segformer: Simple and efficient design for semantic segmentation
+with transformers,” Advances in Neural Information Processing Systems,
+vol. 34, 2021.
+[46] I. Loshchilov and F. Hutter, “Sgdr: Stochastic gradient descent with
+warm restarts,” in Proceedings of International Conference on Learning
+Representations, 2017.
+[47] A. Paszke, S. Gross, F. Massa, A. Lerer, J. Bradbury, G. Chanan,
+T. Killeen, Z. Lin, N. Gimelshein, L. Antiga, A. Desmaison, A. Ko¨pf,
+E. Yang, Z. DeVito, M. Raison, A. Tejani, S. Chilamkurthy, B. Steiner,
+L. Fang, J. Bai, and S. Chintala, “Pytorch: An imperative style, high-
+performance deep learning library,” in Conference and Workshop on
+Neural Information Processing Systems, 2019.
+[48] N. Anuar and A. B. M. Sultan, “Validate conference paper using dice
+coefficient,” Computer and Information Science, vol. 3, no. 3, p. 139,
+2010.
