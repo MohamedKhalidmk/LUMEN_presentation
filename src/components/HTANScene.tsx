@@ -18,10 +18,8 @@ const mhcN2 = new URL('../../khaled/WhatsApp Image 2026-06-28 at 6.04.20 AM (1).
 const mhcN4 = new URL('../../khaled/WhatsApp Image 2026-06-28 at 6.04.20 AM (2).jpeg', import.meta.url).href;
 const htan2Mhc = new URL('../../khaled/WhatsApp Image 2026-06-28 at 6.04.20 AM (3).jpeg', import.meta.url).href;
 const htanWorkbench = new URL('../../khaled/WhatsApp Image 2026-06-28 at 6.04.20 AM (4).jpeg', import.meta.url).href;
-const htanPrinciple = new URL('../../khaled/WhatsApp Image 2026-06-28 at 6.04.20 AM (5).jpeg', import.meta.url).href;
 const transAttUnetFigure = new URL('../../khaled/WhatsApp Image 2026-06-28 at 6.24.54 AM.jpeg', import.meta.url).href;
 const draftQrCode = new URL('../../khaled/WhatsApp Image 2026-06-28 at 7.11.21 AM.jpeg', import.meta.url).href;
-const draftShowcaseImage = new URL('../../khaled/WhatsApp Image 2026-06-28 at 7.18.13 AM.jpeg', import.meta.url).href;
 const isicTableImage = new URL('../../khaled/htan-handoff-isic-table.png', import.meta.url).href;
 const isicVisualsImage = new URL('../../khaled/htan-handoff-isic-visuals-cropped.png', import.meta.url).href;
 const glasTableImage = new URL('../../khaled/htan-handoff-glas-table.png', import.meta.url).href;
@@ -312,7 +310,7 @@ export default function HTANScene() {
         <div className="max-w-5xl space-y-6 text-left">
           <Eyebrow text="htan medical segmentation module" variant="green" />
           <h2 className="text-5xl font-display font-light leading-none tracking-tight md:text-7xl">
-            from pixels to topology-aware masks
+            from pixels to clinical masks
           </h2>
         </div>
 
@@ -664,13 +662,6 @@ export default function HTANScene() {
             <div className="lg:col-span-6 text-left">
               <Eyebrow text="draft 1 showcase" variant="green" />
               <h3 className="mt-5 text-5xl font-display font-light leading-tight">Scan the QR code to open the first working showcase.</h3>
-              <p className="mt-5 max-w-xl text-sm leading-relaxed" style={{ color: C.muted }}>
-                This final reveal connects the model results to the interactive Draft 1 experience for the computer vision module.
-              </p>
-              <div className="mt-8 grid grid-cols-2 gap-3">
-                <img src={htanPrinciple} alt="Computer vision segmentation principle showcase" className="h-40 w-full rounded-2xl border object-cover" style={{ borderColor: C.line }} />
-                <img src={draftShowcaseImage} alt="HTAN Draft 1 benchmark showcase" className="h-40 w-full rounded-2xl border object-cover" style={{ borderColor: C.line }} />
-              </div>
             </div>
             <div className="lg:col-span-6">
               <div className="mx-auto max-w-md rounded-[32px] border bg-white p-6 shadow-lg" style={{ borderColor: C.line }}>
