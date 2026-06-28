@@ -1,0 +1,56 @@
+services:
+  weaviate:
+    image: semitechnologies/weaviate:1.27.0
+    command: ["--host", "0.0.0.0", "--port", "8080", "--scheme", "http"]
+    environment:
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      DEFAULT_VECTORIZER_MODULE: none
+      ENABLE_MODULES: ""
+      QUERY_DEFAULTS_LIMIT: "25"
+      CLUSTER_HOSTNAME: "node1"
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/v1/.well-known/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  rag:
+    image: ${DOCKERHUB_USERNAME}/medilink-rag:${IMAGE_TAG:-latest}
+    environment:
+      # Non-secrets — hardcoded
+      LOG_LEVEL: INFO
+      WEAVIATE_HOST: weaviate
+      USE_GATE: "false"
+      USE_HYDE: "false"
+      SEARCH_MMR: "false"
+      # Secrets — injected at runtime from shell environment (set by GitHub Actions)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      HF_TOKEN: ${HF_TOKEN}
+    depends_on:
+      weaviate:
+        condition: service_healthy
+    ports:
+      - "8002:8002"
+    volumes:
+      - hf_cache:/cache/hf
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    restart: unless-stopped
+
+volumes:
+  weaviate_data:
+  hf_cache:
+
