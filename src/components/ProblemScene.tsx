@@ -154,10 +154,7 @@ export default function ProblemScene() {
             A connected care network. <br />
             <span className="text-neutral-500 font-light">From symptoms to the right provider.</span>
           </h2>
-          <p className="text-neutral-400 text-xs font-mono uppercase tracking-tight flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0" />
-            <span>Interactive Node Topology • Select elements to inspect secure informatics routing.</span>
-          </p>
+
         </div>
 
         {/* Coordinated interactive grid */}

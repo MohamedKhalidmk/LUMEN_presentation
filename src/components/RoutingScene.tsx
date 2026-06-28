@@ -243,45 +243,87 @@ const INTENT_DETAILS: Record<string, { query: string; response: string; route: '
 
 export default function RoutingScene() {
   const [activeRoutes, setActiveRoutes] = useState<('direct' | 'htan' | 'rag')[]>(['htan']);
-  const [selectedIntent, setSelectedIntent] = useState<string>('10 · dermoscopy');
+  const [selectedHtanIntent, setSelectedHtanIntent] = useState<string>('10 · dermoscopy');
+  const [selectedRagIntent, setSelectedRagIntent] = useState<string>('24 · medication');
+  const [selectedDirectIntent, setSelectedDirectIntent] = useState<string>('3 · crisis');
   const [activeScenarioId, setActiveScenarioId] = useState<string>('skin');
   const [qualityGatePass, setQualityGatePass] = useState<boolean>(true);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const activeScenario = CLINICAL_SCENARIOS.find(s => s.id === activeScenarioId) || CLINICAL_SCENARIOS[1];
 
-  // Derive dynamic query and response based on selected intent
-  const currentQuery = INTENT_DETAILS[selectedIntent]?.query || activeScenario.query;
-  const currentResponse = INTENT_DETAILS[selectedIntent]?.response || activeScenario.responseMock;
+  // Derive dynamic query and response based on active routes and selected intents
+  let currentQuery = '';
+  let currentResponse = '';
+
+  if (activeRoutes.includes('direct')) {
+    currentQuery = INTENT_DETAILS[selectedDirectIntent]?.query || activeScenario.query;
+    currentResponse = INTENT_DETAILS[selectedDirectIntent]?.response || activeScenario.responseMock;
+  } else if (activeRoutes.includes('htan') && activeRoutes.includes('rag')) {
+    const htanQ = INTENT_DETAILS[selectedHtanIntent]?.query || '';
+    const ragQ = INTENT_DETAILS[selectedRagIntent]?.query || '';
+    currentQuery = `${htanQ} AND ${ragQ}`;
+
+    const htanResp = INTENT_DETAILS[selectedHtanIntent]?.response || '';
+    const ragResp = INTENT_DETAILS[selectedRagIntent]?.response || '';
+    currentResponse = `${htanResp}\n\n${ragResp}`;
+  } else if (activeRoutes.includes('htan')) {
+    currentQuery = INTENT_DETAILS[selectedHtanIntent]?.query || activeScenario.query;
+    currentResponse = INTENT_DETAILS[selectedHtanIntent]?.response || activeScenario.responseMock;
+  } else if (activeRoutes.includes('rag')) {
+    currentQuery = INTENT_DETAILS[selectedRagIntent]?.query || activeScenario.query;
+    currentResponse = INTENT_DETAILS[selectedRagIntent]?.response || activeScenario.responseMock;
+  }
 
   const handleSelectScenario = (id: string) => {
     setActiveScenarioId(id);
     const scen = CLINICAL_SCENARIOS.find(s => s.id === id);
     if (scen) {
       setActiveRoutes(scen.expectedRoute);
-      setSelectedIntent(scen.intentMatched);
+      if (scen.expectedRoute.includes('direct')) {
+        setSelectedDirectIntent(scen.intentMatched);
+      } else {
+        if (scen.expectedRoute.includes('htan')) {
+          if (scen.id === 'microscopy') {
+            setSelectedHtanIntent('12 · microscopy');
+          } else {
+            setSelectedHtanIntent(scen.intentMatched);
+          }
+        }
+        if (scen.expectedRoute.includes('rag')) {
+          if (scen.id === 'microscopy') {
+            setSelectedRagIntent('23 · prognosis');
+          } else {
+            setSelectedRagIntent(scen.intentMatched);
+          }
+        }
+      }
     }
   };
 
   const handleSelectIntent = (intent: string) => {
-    setSelectedIntent(intent);
     const details = INTENT_DETAILS[intent];
     if (details) {
       if (details.route === 'direct') {
+        setSelectedDirectIntent(intent);
         setActiveRoutes(['direct']);
         setSelectedNode('safe_reply');
-      } else {
+      } else if (details.route === 'htan') {
+        setSelectedHtanIntent(intent);
         let next = activeRoutes.filter(r => r !== 'direct');
-        if (!next.includes(details.route)) {
-          next.push(details.route);
+        if (!next.includes('htan')) {
+          next.push('htan');
         }
         setActiveRoutes(next);
-        
-        if (details.route === 'htan') {
-          setSelectedNode('sonnet');
-        } else {
-          setSelectedNode('cited');
+        setSelectedNode('sonnet');
+      } else if (details.route === 'rag') {
+        setSelectedRagIntent(intent);
+        let next = activeRoutes.filter(r => r !== 'direct');
+        if (!next.includes('rag')) {
+          next.push('rag');
         }
+        setActiveRoutes(next);
+        setSelectedNode('cited');
       }
     }
   };
@@ -289,11 +331,10 @@ export default function RoutingScene() {
   const handleSelectPath = (route: 'direct' | 'htan' | 'rag') => {
     if (route === 'direct') {
       setActiveRoutes(['direct']);
-      handleSelectIntent('3 · crisis');
+      setSelectedNode('safe_reply');
     } else {
       let next = activeRoutes.filter(r => r !== 'direct');
       if (next.includes(route)) {
-        // Toggle off if there's at least one other active route
         if (next.length > 1) {
           next = next.filter(r => r !== route);
         }
@@ -301,15 +342,11 @@ export default function RoutingScene() {
         next.push(route);
       }
       setActiveRoutes(next);
-
-      // Select default intent for the route if the current selected intent doesn't match the active ones
-      const currentDetails = INTENT_DETAILS[selectedIntent];
-      if (currentDetails && currentDetails.route !== route && !next.includes(currentDetails.route)) {
-        if (route === 'htan') {
-          handleSelectIntent('10 · dermoscopy');
-        } else {
-          handleSelectIntent('24 · medication');
-        }
+      
+      if (route === 'htan') {
+        setSelectedNode('sonnet');
+      } else {
+        setSelectedNode('cited');
       }
     }
   };
@@ -361,11 +398,8 @@ export default function RoutingScene() {
           Stateful Clinical Decision Graph
         </span>
         <h2 className="text-3xl font-light tracking-tight text-neutral-800 mt-3 font-sans">
-          Inlet Routing Gateway
+          Intent Routing Gateway
         </h2>
-        <p className="text-xs text-neutral-400 mt-2 max-w-lg mx-auto font-mono tracking-tight uppercase">
-          Interactive Diagram • Click any node to configure options or redirect paths.
-        </p>
       </div>
 
       {/* Main Interactive Flow Grid Wrapper */}
@@ -488,7 +522,7 @@ export default function RoutingScene() {
                 </button>
                 <div className="bg-white border border-neutral-100 rounded-lg p-2 text-[9px] text-left text-neutral-600 font-mono space-y-1">
                   {DIRECT_INTENTS.map((intent) => {
-                    const isSelected = selectedIntent === intent;
+                    const isSelected = selectedDirectIntent === intent;
                     return (
                       <button
                         key={intent}
@@ -523,7 +557,7 @@ export default function RoutingScene() {
                 <div className="bg-white border border-neutral-100 rounded-lg p-2 text-[9px] text-left text-neutral-600 font-mono space-y-1">
                   <div className="text-neutral-400 text-[8px] uppercase tracking-wider text-center border-b pb-0.5 mb-1">benchmarked</div>
                   {HTAN_INTENTS.slice(0, 3).map((intent) => {
-                    const isSelected = selectedIntent === intent;
+                    const isSelected = selectedHtanIntent === intent;
                     return (
                       <button
                         key={intent}
@@ -540,7 +574,7 @@ export default function RoutingScene() {
                   })}
                   <div className="text-neutral-400 text-[8px] uppercase tracking-wider text-center border-y py-0.5 my-1">expansion</div>
                   {HTAN_INTENTS.slice(3).map((intent) => {
-                    const isSelected = selectedIntent === intent;
+                    const isSelected = selectedHtanIntent === intent;
                     return (
                       <button
                         key={intent}
@@ -574,7 +608,7 @@ export default function RoutingScene() {
                 </button>
                 <div className="bg-white border border-neutral-100 rounded-lg p-2 text-[9px] text-left text-neutral-600 font-mono space-y-1">
                   {RAG_INTENTS.map((intent) => {
-                    const isSelected = selectedIntent === intent;
+                    const isSelected = selectedRagIntent === intent;
                     return (
                       <button
                         key={intent}
@@ -848,7 +882,7 @@ export default function RoutingScene() {
                       <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl space-y-1.5 font-mono text-[10px] text-neutral-600">
                         <div className="text-neutral-400 uppercase text-[9px] font-bold pb-1 border-b">Raw Payload Data:</div>
                         <div>query: "{currentQuery}"</div>
-                        <div>intent_matched: "{selectedIntent}"</div>
+                        <div>intent_matched: "{activeRoutes.includes('direct') ? selectedDirectIntent : activeRoutes.includes('htan') && activeRoutes.includes('rag') ? `${selectedHtanIntent} + ${selectedRagIntent}` : activeRoutes.includes('htan') ? selectedHtanIntent : selectedRagIntent}"</div>
                         <div>active_routes: {activeRoutes.map(r => r.toUpperCase()).join(' + ')}</div>
                       </div>
                     </div>
@@ -944,7 +978,7 @@ export default function RoutingScene() {
                       </div>
                       <div className="p-3 bg-sky-50/50 border border-sky-200 rounded-xl space-y-1.5 font-mono text-[9px] text-sky-900 leading-relaxed">
                         <div className="font-bold text-[10px]">Active Sonnet Input context:</div>
-                        <div>• Active Intent: {selectedIntent}</div>
+                        <div>• Active Intents: {activeRoutes.includes('direct') ? selectedDirectIntent : activeRoutes.includes('htan') && activeRoutes.includes('rag') ? `${selectedHtanIntent} + ${selectedRagIntent}` : activeRoutes.includes('htan') ? selectedHtanIntent : selectedRagIntent}</div>
                         <div>• Primary Services: {activeRoutes.map(r => r.toUpperCase()).join(' + ')}</div>
                         <div>• Quality Check: PASSED</div>
                       </div>

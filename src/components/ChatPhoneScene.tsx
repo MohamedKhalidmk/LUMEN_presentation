@@ -116,13 +116,8 @@ export default function ChatPhoneScene() {
                 </div>
 
                  <h2 className="text-5xl sm:text-7xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.05]">
-                  Clinical Advisory. <br />
-                  <span className="text-neutral-500 font-normal">Continuous context.</span>
+                  How to book.
                 </h2>
-
-                <p className="text-xs font-mono text-[#86868B] uppercase tracking-tight">
-                  Conversational assistant leveraging secure, unified patient context for evidence-based recovery guidance.
-                </p>
 
                 <div className="pt-2 flex flex-wrap gap-4 items-center">
                   <button
@@ -165,8 +160,8 @@ export default function ChatPhoneScene() {
                 </div>
 
                 <h2 className="text-5xl sm:text-7xl font-display font-light text-[#1D1D1F] tracking-tight leading-[1.05]">
-                  Clinical Booking. <br />
-                  <span className="text-emerald-600 font-normal">Active Booking.</span>
+                  How to book. <br />
+                  <span className="text-emerald-600 font-normal">Active booking.</span>
                 </h2>
 
                 <p className="text-base sm:text-lg text-[#6E6E73] leading-relaxed font-sans font-light">

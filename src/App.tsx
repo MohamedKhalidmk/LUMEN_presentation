@@ -12,7 +12,6 @@ import AutoRecDetailScene from './components/AutoRecDetailScene';
 import RecordsPhoneScene from './components/RecordsPhoneScene';
 import ProductScene from './components/ProductScene';
 import ChatPhoneScene from './components/ChatPhoneScene';
-import BtsWorkflowScene from './components/BtsWorkflowScene';
 import ComparisonScene from './components/ComparisonScene';
 import LumenCoreScene from './components/LumenCoreScene';
 import HTANScene from './components/HTANScene';
@@ -20,10 +19,11 @@ import RAGScene from './components/RAGScene';
 import HTANExplainScene from './components/HTANExplainScene';
 import RAGExplainScene from './components/RAGExplainScene';
 import RoutingScene from './components/RoutingScene';
+import AgentGraphScene from './components/AgentGraphScene';
 import QualityGateScene from './components/QualityGateScene';
 import PatientExampleScene from './components/PatientExampleScene';
 import DeploymentScene from './components/DeploymentScene';
-import ScreenMirrorScene from './components/ScreenMirrorScene';
+import HtanResultsScene from './components/HtanResultsScene';
 
 const ALL_CHAPTERS = [
   { id: 'hero', name: 'Meet MediLink', title: 'MediLink Reveal' },
@@ -32,18 +32,18 @@ const ALL_CHAPTERS = [
   { id: 'records_intro', name: 'Dossier Unlocked', title: 'Dossier Unlock' },
   { id: 'product', name: 'Patient Records', title: 'Medical Records' },
   { id: 'chat_intro', name: 'Advisory Unlocked', title: 'Advisory Unlock' },
-  { id: 'bts_workflow', name: 'Behind the Scenes', title: 'Behind the Scenes' },
   { id: 'core', name: 'Lumen System', title: 'Lumen System' },
   { id: 'routing', name: 'Router', title: 'Routing Gateway' },
+  { id: 'agent_graph', name: 'AutoRec Agent', title: 'Agent Graph & AutoRec' },
   { id: 'gate', name: 'Quality Edge', title: 'Context Filter' },
   { id: 'htan_explain', name: 'About Vision', title: 'Vision & HTAN Theory' },
   { id: 'htan', name: 'Segmentation', title: 'HTAN Vision' },
+  { id: 'htan_results', name: 'HTAN Results', title: 'HTAN Results & Diagrams' },
   { id: 'rag_explain', name: 'About RAG', title: 'RAG & Grounding Theory' },
   { id: 'rag', name: 'Evidence Vault', title: 'Biomedical RAG' },
   { id: 'example', name: 'Case Study', title: 'Patient Example' },
   { id: 'deployment', name: 'Cloud EC2', title: 'Cloud Deploy' },
-  { id: 'comparison', name: 'Platform Delta', title: 'Comparison' },
-  { id: 'screen_mirror', name: 'Screen Cast', title: 'Device Mirror' }
+  { id: 'comparison', name: 'Platform Delta', title: 'Comparison' }
 ];
 
 const TOUR_STEPS = [
@@ -78,19 +78,19 @@ const TOUR_STEPS = [
     voiceText: 'With your treatment history logged securely, our integrated advisory portal has the perfect clinical context to guide recovery without repeating yourself.'
   },
   {
-    id: 'bts_workflow',
-    title: 'Behind the Scenes Workflow',
-    voiceText: 'Watch the agent work behind the scenes. The Medi AI Agent minimizes the chat app, navigates the phone home screen, opens Vezeeta, completes the booking speedrun, and syncs back seamlessly.'
-  },
-  {
     id: 'core',
     title: 'Lumen System',
     voiceText: 'Lumen is a system of specialized components. It routes user tasks into image segmenters, vector literature grounders, and safety filters to prevent hallucinations.'
   },
   {
     id: 'routing',
-    title: 'LangGraph inlet router',
+    title: 'LangGraph intent router',
     voiceText: 'Our gateway router monitors user intents. Non-clinical chats bypass heavy visual model clusters, protecting active server instances and maintaining immediate response runtimes.'
+  },
+  {
+    id: 'agent_graph',
+    title: 'Agent Graph & AutoRec',
+    voiceText: 'Next, observe the stateful LangGraph orchestrator. It manages the user flow dynamically, invoking deep neural recommenders and automation workers.'
   },
   {
     id: 'gate',
@@ -106,6 +106,11 @@ const TOUR_STEPS = [
     id: 'htan',
     title: 'HTAN computer vision',
     voiceText: 'The Hyper-connected Transformer Attention Network outlines skin anomaly margins. Intended for visual tracing context, it achieves a ninety point three two percent Dice score; is segmentation only, never rendering diagnoses.'
+  },
+  {
+    id: 'htan_results',
+    title: 'HTAN Results & Diagrams',
+    voiceText: 'Explore our peer-reviewed benchmarks. Our Manifold-Constrained Hyper-Connections achieve state-of-the-art segmentation across GlaS, skin lesion, and nuclei datasets.'
   },
   {
     id: 'rag_explain',
@@ -131,11 +136,6 @@ const TOUR_STEPS = [
     id: 'comparison',
     title: 'Platform comparatives',
     voiceText: 'Vezeeta, Altibbi, and WebTeb excel in specific pieces. Only MediLink unifies the care cycle, passing clinical case files seamlessly to physical physicians.'
-  },
-  {
-    id: 'screen_mirror',
-    title: 'Device Mirroring',
-    voiceText: 'Finally, explore dynamic device mirroring. You can simulate direct app interactions projected onto a doctor’s macOS console or establish an active WebRTC screen share to cast your phone live.'
   }
 ];
 
@@ -485,16 +485,16 @@ export default function App() {
           <ChatPhoneScene />
         </div>
 
-        <div ref={el => { sectionRefs.current['bts_workflow'] = el; }} id="bts_workflow" className="scroll-mt-14">
-          <BtsWorkflowScene />
-        </div>
-
         <div ref={el => { sectionRefs.current['core'] = el; }} id="core" className="scroll-mt-14">
           <LumenCoreScene />
         </div>
 
         <div ref={el => { sectionRefs.current['routing'] = el; }} id="routing" className="scroll-mt-14">
           <RoutingScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['agent_graph'] = el; }} id="agent_graph" className="scroll-mt-14">
+          <AgentGraphScene />
         </div>
 
         <div ref={el => { sectionRefs.current['gate'] = el; }} id="gate" className="scroll-mt-14">
@@ -507,6 +507,10 @@ export default function App() {
 
         <div ref={el => { sectionRefs.current['htan'] = el; }} id="htan" className="scroll-mt-14">
           <HTANScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['htan_results'] = el; }} id="htan_results" className="scroll-mt-14">
+          <HtanResultsScene />
         </div>
 
         <div ref={el => { sectionRefs.current['rag_explain'] = el; }} id="rag_explain" className="scroll-mt-14">
@@ -527,10 +531,6 @@ export default function App() {
 
         <div ref={el => { sectionRefs.current['comparison'] = el; }} id="comparison" className="scroll-mt-14">
           <ComparisonScene />
-        </div>
-
-        <div ref={el => { sectionRefs.current['screen_mirror'] = el; }} id="screen_mirror" className="scroll-mt-14">
-          <ScreenMirrorScene />
         </div>
       </main>
     </div>
