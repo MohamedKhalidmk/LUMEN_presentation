@@ -14,16 +14,17 @@ import ProductScene from './components/ProductScene';
 import ChatPhoneScene from './components/ChatPhoneScene';
 import ComparisonScene from './components/ComparisonScene';
 import LumenCoreScene from './components/LumenCoreScene';
+import HTANIntroScene from './components/HTANIntroScene';
 import HTANScene from './components/HTANScene';
-import RAGScene from './components/RAGScene';
-import HTANExplainScene from './components/HTANExplainScene';
+import RAGIntroScene from './components/RAGIntroScene';
 import RAGExplainScene from './components/RAGExplainScene';
 import RoutingScene from './components/RoutingScene';
 import AgentGraphScene from './components/AgentGraphScene';
 import QualityGateScene from './components/QualityGateScene';
 import PatientExampleScene from './components/PatientExampleScene';
+import RAGMetricsScene from './components/RAGMetricsScene';
+import RAGAcademicRootsScene from './components/RAGAcademicRootsScene';
 import DeploymentScene from './components/DeploymentScene';
-import HtanResultsScene from './components/HtanResultsScene';
 
 const ALL_CHAPTERS = [
   { id: 'hero', name: 'Meet MediLink', title: 'MediLink Reveal' },
@@ -36,12 +37,13 @@ const ALL_CHAPTERS = [
   { id: 'routing', name: 'Router', title: 'Routing Gateway' },
   { id: 'agent_graph', name: 'AutoRec Agent', title: 'Agent Graph & AutoRec' },
   { id: 'gate', name: 'Quality Edge', title: 'Context Filter' },
-  { id: 'htan_explain', name: 'About Vision', title: 'Vision & HTAN Theory' },
-  { id: 'htan', name: 'Segmentation', title: 'HTAN Vision' },
-  { id: 'htan_results', name: 'HTAN Results', title: 'HTAN Results & Diagrams' },
+  { id: 'htan_intro', name: 'HTAN Intro', title: 'Computer Vision Intro' },
+  { id: 'htan', name: 'HTAN Module', title: 'HTAN Segmentation' },
+  { id: 'rag_intro', name: 'RAG Intro', title: 'RAG System Intro' },
   { id: 'rag_explain', name: 'About RAG', title: 'RAG & Grounding Theory' },
-  { id: 'rag', name: 'Evidence Vault', title: 'Biomedical RAG' },
   { id: 'example', name: 'Case Study', title: 'Patient Example' },
+  { id: 'rag_metrics', name: 'RAG Metrics', title: 'RAG Benchmark Results' },
+  { id: 'rag_roots', name: 'RAG Roots', title: 'Foundational Publications' },
   { id: 'deployment', name: 'Cloud EC2', title: 'Cloud Deploy' },
   { id: 'comparison', name: 'Platform Delta', title: 'Comparison' }
 ];
@@ -98,19 +100,19 @@ const TOUR_STEPS = [
     voiceText: 'All tool data passes our Quality Gate. Irrelevant logs are stripped to clean context packages. As we say: tools may help Sonnet, but they cannot poison it.'
   },
   {
-    id: 'htan_explain',
-    title: 'Image Segmentation & HTAN Theory',
-    voiceText: 'Before seeing the empirical results, let’s explore Image Segmentation and our custom HTAN network. Segmentation traces the exact border contours of anomalies, acting as a crucial geometric visual-aid without issuing autonomous diagnoses. HTAN is our mathematical champion, preserving fine details using Birkhoff Polytope projections.'
+    id: 'htan_intro',
+    title: 'HTAN computer vision intro',
+    voiceText: 'Now we enter the computer vision module. HTAN is MediLink segmentation research: a TransAttUNet backbone enhanced with manifold constrained hyper connections, evaluated on ISIC, GlaS, and Data Science Bowl.'
   },
   {
     id: 'htan',
-    title: 'HTAN computer vision',
-    voiceText: 'The Hyper-connected Transformer Attention Network outlines skin anomaly margins. Intended for visual tracing context, it achieves a ninety point three two percent Dice score; is segmentation only, never rendering diagnoses.'
+    title: 'HTAN segmentation module',
+    voiceText: 'This section rewrites the full HTAN story: what segmentation means, why it matters in medical imaging, how segmentation models evolved, where TransAttUNet leaves a bottleneck gap, how manifold constrained hyper connections solve it, and what the benchmark results show.'
   },
   {
-    id: 'htan_results',
-    title: 'HTAN Results & Diagrams',
-    voiceText: 'Explore our peer-reviewed benchmarks. Our Manifold-Constrained Hyper-Connections achieve state-of-the-art segmentation across GlaS, skin lesion, and nuclei datasets.'
+    id: 'rag_intro',
+    title: 'MediLink RAG intro',
+    voiceText: 'Now we enter the biomedical grounding module. MediLink RAG turns patient questions into evidence search, retrieves medical context, reranks it, and generates answers constrained by citations.'
   },
   {
     id: 'rag_explain',
@@ -118,14 +120,19 @@ const TOUR_STEPS = [
     voiceText: 'Let’s understand Retrieval-Augmented Generation, or RAG. Standard AI models tend to speculate, which is dangerous in healthcare. RAG forces the system to find real, peer-reviewed medical publications in our Weaviate database and cite them directly, entirely eliminating hallucinations.'
   },
   {
-    id: 'rag',
-    title: 'Biomedical vector search',
-    voiceText: 'Lumen retrieves abstracts from twenty-five million papers in Weaviate. Supported by S-PubMedBERT, it forces final outputs to cite real publications, ensuring evidence-based safety.'
-  },
-  {
     id: 'example',
     title: 'Request simulation',
     voiceText: 'Watch a clinical mole scan progress from upload, through routing, visual tracing, dense literature matching, and gate checks, into direct physician summary exports.'
+  },
+  {
+    id: 'rag_metrics',
+    title: 'RAG benchmark results',
+    voiceText: 'Now we measure the RAG system directly. The benchmark covers thirty disease specific questions on AWS EC2 g4dn xlarge, comparing retrieval quality, disease consistency, answer semantics, latency, hallucination control, and ablation against weaker pipeline variants.'
+  },
+  {
+    id: 'rag_roots',
+    title: 'RAG academic roots',
+    voiceText: 'The RAG module ends with the scientific roots behind retrieval augmented generation: semantic retrieval, biomedical encoders, vector search, and source-grounded clinical answers.'
   },
   {
     id: 'deployment',
@@ -501,28 +508,32 @@ export default function App() {
           <QualityGateScene />
         </div>
 
-        <div ref={el => { sectionRefs.current['htan_explain'] = el; }} id="htan_explain" className="scroll-mt-14">
-          <HTANExplainScene />
+        <div ref={el => { sectionRefs.current['htan_intro'] = el; }} id="htan_intro" className="scroll-mt-14">
+          <HTANIntroScene />
         </div>
 
         <div ref={el => { sectionRefs.current['htan'] = el; }} id="htan" className="scroll-mt-14">
           <HTANScene />
         </div>
 
-        <div ref={el => { sectionRefs.current['htan_results'] = el; }} id="htan_results" className="scroll-mt-14">
-          <HtanResultsScene />
+        <div ref={el => { sectionRefs.current['rag_intro'] = el; }} id="rag_intro" className="scroll-mt-14">
+          <RAGIntroScene />
         </div>
 
         <div ref={el => { sectionRefs.current['rag_explain'] = el; }} id="rag_explain" className="scroll-mt-14">
           <RAGExplainScene />
         </div>
 
-        <div ref={el => { sectionRefs.current['rag'] = el; }} id="rag" className="scroll-mt-14">
-          <RAGScene />
-        </div>
-
         <div ref={el => { sectionRefs.current['example'] = el; }} id="example" className="scroll-mt-14">
           <PatientExampleScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['rag_metrics'] = el; }} id="rag_metrics" className="scroll-mt-14">
+          <RAGMetricsScene />
+        </div>
+
+        <div ref={el => { sectionRefs.current['rag_roots'] = el; }} id="rag_roots" className="scroll-mt-14">
+          <RAGAcademicRootsScene />
         </div>
 
         <div ref={el => { sectionRefs.current['deployment'] = el; }} id="deployment" className="scroll-mt-14">
